@@ -5,11 +5,19 @@ import {
   ScrollView,
   Text,
   Image,
+  TouchableOpacity, 
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // ← Added
 import { Button, Gap, Header, TextInput, Card } from '../../components';
 import ChefHat from '../../assets/images/Hat_Image.svg';
 
 const SignUp = () => {
+  const navigation = useNavigation(); // 
+
+  const handleSignInPress = () => {
+    navigation.navigate('SignIn'); //
+  };
+
   return (
     <View style={styles.screen}>
       <ScrollView
@@ -56,7 +64,9 @@ const SignUp = () => {
           <Gap height={12} />
           <Text style={styles.footerText}>
             Already have an account?{' '}
-            <Text style={styles.link}>Sign In</Text>
+            <TouchableOpacity onPress={handleSignInPress}>
+              <Text style={styles.link}>Sign In</Text>
+            </TouchableOpacity>
           </Text>
         </Card>
 
@@ -67,6 +77,7 @@ const SignUp = () => {
 };
 
 export default SignUp;
+
 
 const styles = StyleSheet.create({
   screen: {
@@ -134,5 +145,6 @@ const styles = StyleSheet.create({
   link: {
     fontFamily: 'Poppins-SemiBold',
     color: '#FACC15',
+    textDecorationLine: 'underline', 
   },
 });
