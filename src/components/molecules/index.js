@@ -4,4 +4,22 @@ import Header from './Header';
 import Card from './Card';
 import PopUP from './PopUP'
 
-export {FeatureItem, Footer, Header, Card, PopUP};
+import MenuCard from './MenuCard';
+import QuickButton from './QuickButton';
+
+import QuickRecipes from './QuickRecipes';
+import TodayMenu from '../../data/todayMenu';
+
+export {
+  FeatureItem,
+  Footer,
+  Header,
+  TextInput,
+  Card,
+  MenuCard,
+  QuickButton,
+  QuickRecipes,
+  TodayMenu,
+  PopUP,
+};
+

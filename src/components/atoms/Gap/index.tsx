@@ -1,12 +1,8 @@
+// /src/components/atoms/Gap.tsx
 import React from 'react';
 import {View} from 'react-native';
 
-type Props = {
-  height?: number;
-  width?: number;
-};
-
-const Gap = ({height, width}: Props) => {
+const Gap = ({height, width}) => {
   return <View style={{height, width}} />;
 };
 

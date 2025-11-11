@@ -1,14 +1,21 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import {View, StyleSheet} from 'react-native';
 
-const Card = ({ children, style, padding = 20, rounded = 18, center = false }) => {
+const Card = ({
+  children,
+  style,
+  padding = 20,
+  rounded = 18,
+  center = false,
+}) => {
   return (
-    <View style={[
-      styles.card,
-      { padding, borderRadius: rounded },
-      center && styles.center,
-      style
-    ]}>
+    <View
+      style={[
+        styles.card,
+        {padding, borderRadius: rounded},
+        center && styles.center,
+        style,
+      ]}>
       {children}
     </View>
   );

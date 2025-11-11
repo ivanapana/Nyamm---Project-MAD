@@ -1,3 +1,4 @@
+// App.tsx
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -5,6 +6,7 @@ import GetStarted from './src/pages/GetStarted';
 import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
 import Profile from './src/pages/Profile';
+import {BottomTabNavigator} from './src/navigation/BottomTabNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,6 +18,8 @@ const App = () => {
         <Stack.Screen name="SignIn" component={SignIn} />
         <Stack.Screen name="SignUp" component={SignUp} />
         <Stack.Screen name="Profile" component={Profile} />
+        {/* Gabungkan 5 halaman utama ke dalam satu tab navigator */}
+        <Stack.Screen name="BottomTabs" component={BottomTabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
   );

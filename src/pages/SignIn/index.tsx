@@ -1,22 +1,17 @@
 import React from 'react';
-import {
-  StyleSheet,
-  View,
-  ScrollView,
-  Text,
-  Image,
-} from 'react-native';
-import { Button, Gap, Header, TextInput, Card } from '../../components';
+import {StyleSheet, View, ScrollView, Text, Image} from 'react-native';
+import {Button, Gap, Header, TextInput, Card} from '../../components';
 import ChefHat from '../../assets/images/Hat_Image.svg';
+import {useNavigation} from '@react-navigation/native';
 
 const SignIn = () => {
+  const navigation = useNavigation();
   return (
     <View style={styles.screen}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
-
-        <Header backButton />
+        <Header label="Welcome Back!" backButton />
 
         <Gap height={12} />
 
@@ -26,7 +21,9 @@ const SignIn = () => {
               <Image source={ChefHat} style={styles.logo} />
             </View>
             <Text style={styles.cardTitle}>Welcome Back!</Text>
-            <Text style={styles.cardSubtitle}>Sign in to continue your cooking journey</Text>
+            <Text style={styles.cardSubtitle}>
+              Sign in to continue your cooking journey
+            </Text>
           </View>
 
           <Gap height={18} />
@@ -50,7 +47,10 @@ const SignIn = () => {
           </View>
 
           <Gap height={24} />
-          <Button label="Sign In" />
+          <Button
+            label="Sign In"
+            onPress={() => navigation.navigate('BottomTabs')}
+          />
 
           <Gap height={12} />
           <View style={styles.orDivider}>
@@ -61,8 +61,7 @@ const SignIn = () => {
 
           <Gap height={12} />
           <Text style={styles.footerText}>
-            Don't have an account?{' '}
-            <Text style={styles.link}>Sign Up</Text>
+            Don't have an account? <Text style={styles.link}>Sign Up</Text>
           </Text>
         </Card>
 
