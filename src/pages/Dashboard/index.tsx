@@ -90,7 +90,7 @@ const Dashboard = ({navigation}) => {
         <View style={styles.actionsRow}>
           <TouchableOpacity
             style={[styles.actionCard, styles.primaryAction]}
-            onPress={() => navigation.navigate('Planner')}>
+            onPress={() => navigation.navigate('PerencanaMenu')}>
             <Image
               source={require('../../assets/images/calendar.png')}
               style={styles.actionIcon}

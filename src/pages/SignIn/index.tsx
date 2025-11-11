@@ -1,17 +1,20 @@
 import React from 'react';
-import {StyleSheet, View, ScrollView, Text, Image} from 'react-native';
+import {StyleSheet, View, ScrollView, Text, Image, TouchableOpacity} from 'react-native';
 import {Button, Gap, Header, TextInput, Card} from '../../components';
 import ChefHat from '../../assets/images/Hat_Image.svg';
 import {useNavigation} from '@react-navigation/native';
 
 const SignIn = () => {
   const navigation = useNavigation();
+  const handleSignUpPress = () => {
+    navigation.navigate('SignUp'); //
+  };
   return (
     <View style={styles.screen}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
-        <Header label="Welcome Back!" backButton />
+        <Header label="" backButton />
 
         <Gap height={12} />
 
@@ -28,10 +31,10 @@ const SignIn = () => {
 
           <Gap height={18} />
 
-          <TextInput label="Username" placeholder="marco" />
+          <TextInput label="Username" placeholder="username" />
 
           <Gap height={16} />
-          <TextInput label="Password" placeholder="••••••••" secureTextEntry />
+          <TextInput label="Password" placeholder="password" secureTextEntry />
 
           <Gap height={16} />
           <View style={styles.forgotPasswordRow}>
@@ -61,7 +64,10 @@ const SignIn = () => {
 
           <Gap height={12} />
           <Text style={styles.footerText}>
-            Don't have an account? <Text style={styles.link}>Sign Up</Text>
+            Don't have an account?{' '}
+            <TouchableOpacity onPress={handleSignUpPress}>
+                <Text style={styles.link}>Sign Up</Text>
+              </TouchableOpacity>
           </Text>
         </Card>
 
@@ -88,7 +94,7 @@ const styles = StyleSheet.create({
   card: {
     alignSelf: 'center',
     width: 360,
-    height: 580, // Adjusted height for Sign In form
+    height: 580, 
     backgroundColor: 'rgba(255, 255, 255, 1)',
   },
 

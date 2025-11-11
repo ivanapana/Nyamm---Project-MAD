@@ -22,7 +22,9 @@ const SignUp = () => {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
-        <Header backButton />
+
+        <Header label="" backButton />
+
         <Gap height={12} />
 
         <Card style={styles.card}>
