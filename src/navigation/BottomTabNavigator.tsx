@@ -5,7 +5,7 @@ import Dashboard from '../pages/Dashboard';
 import {Image} from 'react-native';
 
 import {Resep} from '../pages/Resep';
-import {Rencana} from '../pages/Rencana';
+import PerencanaMenu from '../pages/perencanaMenu';
 import {Belanja} from '../pages/Belanja';
 import {Kulkasku} from '../pages/Kulkasku';
 
@@ -71,7 +71,7 @@ export function BottomTabNavigator() {
 
       <Tab.Screen
         name="Rencana"
-        component={Rencana}
+        component={PerencanaMenu}
         options={{
           tabBarLabel: 'Rencana',
           tabBarIcon: ({focused}) => (
