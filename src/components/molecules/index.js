@@ -8,7 +8,10 @@ import QuickButton from './QuickButton';
 
 import QuickRecipes from './QuickRecipes';
 import TodayMenu from '../../data/todayMenu';
-
+import ShoppingActions from './ShoppingActions';
+import ShoppingCategory from './ShoppingCategory';
+import ShoppingItem from './ShoppingItem';
+import ShoppingProgress from './ShoppingProgress';
 export {
   FeatureItem,
   Footer,
@@ -19,4 +22,8 @@ export {
   QuickButton,
   QuickRecipes,
   TodayMenu,
+  ShoppingActions,
+  ShoppingCategory,
+  ShoppingItem,
+  ShoppingProgress,
 };
