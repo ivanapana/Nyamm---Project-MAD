@@ -6,7 +6,8 @@ import {Image} from 'react-native';
 
 import {Resep} from '../pages/Resep';
 import PerencanaMenu from '../pages/perencanaMenu';
-import {Belanja} from '../pages/Belanja';
+import {Rencana} from '../pages/Rencana';
+import Belanja from '../pages/Belanja';
 import {Kulkasku} from '../pages/Kulkasku';
 
 const Tab = createBottomTabNavigator();

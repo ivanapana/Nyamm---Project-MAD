@@ -6,6 +6,7 @@ import GetStarted from './src/pages/GetStarted';
 import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
 import {Bahan} from './src/pages/bahan';
+import Profile from './src/pages/Profile';
 import {BottomTabNavigator} from './src/navigation/BottomTabNavigator';
 
 import PerencanaMenu from './src/pages/perencanaMenu';
@@ -21,7 +22,8 @@ const App = () => {
         <Stack.Screen name="SignUp" component={SignUp} />
         <Stack.Screen name="Bahan" component={Bahan} />
         <Stack.Screen name="PerencanaMenu" component={PerencanaMenu} />
-        {/* Gabungkan 5 halaman utama ke dalam satu tab navigator */}
+        <Stack.Screen name="Profile" component={Profile} />
+     
         <Stack.Screen name="BottomTabs" component={BottomTabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
