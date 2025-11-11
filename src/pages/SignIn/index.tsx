@@ -16,7 +16,7 @@ const SignIn = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
 
-        <Header label="Welcome Back!" backButton />
+        <Header backButton />
 
         <Gap height={12} />
 
