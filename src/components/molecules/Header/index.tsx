@@ -1,14 +1,24 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
-export default function Header(props) {
-  const {title, onBack} = props || {};
+export default function Header({label, backButton}) {
+  const navigation = useNavigation();
+
+  const handleBack = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={onBack} style={styles.back}>
-        <Text style={styles.backText}>back</Text>
-      </TouchableOpacity>
-      {title ? <Text style={styles.title}>{title}</Text> : null}
+      {backButton && (
+        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+          <Text style={styles.backButtonText}>Back</Text>
+        </TouchableOpacity>
+      )}
+      <Text style={styles.label}>{label}</Text>
     </View>
   );
 }
@@ -17,19 +27,18 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     paddingVertical: 8,
-    // keep layout row so left 'back' sits at left
     flexDirection: 'row',
     alignItems: 'center',
   },
-  back: {
+  backButton: {
     padding: 6,
     marginRight: 6,
   },
-  backText: {
+  backButtonText: {
     color: '#666',
     fontSize: 14,
   },
-  title: {
+  label: {
     flex: 1,
     textAlign: 'center',
     fontSize: 18,
