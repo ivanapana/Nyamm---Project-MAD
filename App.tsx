@@ -7,6 +7,8 @@ import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
 import {BottomTabNavigator} from './src/navigation/BottomTabNavigator';
 
+import PerencanaMenu from './src/pages/perencanaMenu';
+
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -16,6 +18,7 @@ const App = () => {
         <Stack.Screen name="GetStarted" component={GetStarted} />
         <Stack.Screen name="SignIn" component={SignIn} />
         <Stack.Screen name="SignUp" component={SignUp} />
+        <Stack.Screen name="PerencanaMenu" component={PerencanaMenu} />
         {/* Gabungkan 5 halaman utama ke dalam satu tab navigator */}
         <Stack.Screen name="BottomTabs" component={BottomTabNavigator} />
       </Stack.Navigator>

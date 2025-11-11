@@ -21,6 +21,7 @@ const GetStarted = ({navigation}) => {
         <Button
           label="Get Started →"
           onPress={() => navigation.navigate('SignUp')}
+
         />
 
         <Footer navigation={navigation} />
@@ -48,5 +49,8 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 24,
     width: '90%',
+  },
+  button: {
+    color: '#000000ff',
   },
 });

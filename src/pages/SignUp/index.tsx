@@ -24,7 +24,7 @@ const SignUp = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
 
-        <Header label="Create Account" backButton />
+        <Header label="" backButton />
 
         <Gap height={12} />
 
