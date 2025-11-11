@@ -1,8 +1,9 @@
 import FeatureItem from './FeatureItem';
 import Footer from './Footer';
 import Header from './Header';
-import TextInput from './TextInput';
 import Card from './Card';
+import PopUP from './PopUP'
+
 import MenuCard from './MenuCard';
 import QuickButton from './QuickButton';
 
@@ -19,4 +20,6 @@ export {
   QuickButton,
   QuickRecipes,
   TodayMenu,
+  PopUP,
 };
+
