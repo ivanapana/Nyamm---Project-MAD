@@ -1,45 +1,59 @@
-// src/components/atoms/Icon/index.tsx
+// src/components/atoms/Icon/index.js
+
 import React from 'react';
-import Feather from 'react-native-vector-icons/Feather';
+
+// Impor SVG dari folder assets/images
+import ChefHatIcon from '../../../assets/images/chef-hat-svgrepo-com.svg';
+import CalendarIcon from '../../../assets/images/rencana.svg';
+import CartIcon from '../../../assets/images/belanja.svg';
+import ClockIcon from '../../../assets/images/calendar.svg';
+import UserIcon from '../../../assets/images/profil.svg';
 import MailIcon from '../../../assets/images/mail.svg';
 import LockIcon from '../../../assets/images/lock.svg';
-import ChefHatIcon from '../../../assets/images/chef-hat-svgrepo-com.svg';
-import eye from '../../../assets/images/eye.svg';
-
-const iconNames = {
-  chef: 'smile',
-  calendar: 'calendar',
-  cart: 'shopping-cart',
-  clock: 'clock',
-  user: 'user',
-  mail: 'mail',
-  lock: 'lock',
-  eye: 'eye',
-  eyeOff: 'eye-off',
-  search: 'search',
-  plus: 'plus',
-  fridge: 'archive',
-};
+// import EyeIcon from '../../../assets/images/eye.svg';
+// import EyeOffIcon from '../../../assets/images/eyeOff.svg';
+import SearchIcon from '../../../assets/images/search.svg';
+//import PlusIcon from '../../../assets/images/plus.svg';
+import FridgeIcon from '../../../assets/images/kulkasku.svg';
+//import CheckIcon from '../../../assets/images/check.svg';
 
 const Icon = ({name, size = 24, color = '#000'}) => {
-  if (name === 'chef') {
-    return <ChefHatIcon width={size} height={size} fill={color} />;
-  }
+  const svgProps = {
+    width: size,
+    height: size,
+    fill: color,
+  };
 
-  if (name === 'mail') {
-    return <MailIcon width={size} height={size} fill={color} />;
+  switch (name) {
+    case 'chef':
+      return <ChefHatIcon {...svgProps} />;
+    case 'calendar':
+      return <CalendarIcon {...svgProps} />;
+    case 'cart':
+      return <CartIcon {...svgProps} />;
+    case 'clock':
+      return <ClockIcon {...svgProps} />;
+    case 'user':
+      return <UserIcon {...svgProps} />;
+    case 'mail':
+      return <MailIcon {...svgProps} />;
+    case 'lock':
+      return <LockIcon {...svgProps} />;
+    // case 'eye':
+    //   return <EyeIcon {...svgProps} />;
+    // case 'eyeOff':
+    //   return <EyeOffIcon {...svgProps} />;
+    case 'search':
+      return <SearchIcon {...svgProps} />;
+    // case 'plus':
+    //   return <PlusIcon {...svgProps} />;
+    case 'fridge':
+      return <FridgeIcon {...svgProps} />;
+    case 'check':
+    // return <CheckIcon {...svgProps} />;
+    default:
+      return <UserIcon {...svgProps} />;
   }
-
-  if (name === 'lock') {
-    return <LockIcon width={size} height={size} fill={color} />;
-  }
-
-  if (name === 'eye') {
-    return <LockIcon width={size} height={size} fill={color} />;
-  }
-
-  const iconName = iconNames[name] || 'circle';
-  return <Feather name={iconName} size={size} color={color} />;
 };
 
 export default Icon;
