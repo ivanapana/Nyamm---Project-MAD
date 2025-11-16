@@ -16,26 +16,23 @@ const PopUP = ({
   subtitle = 'Kamu perlu login kembali untuk mengakses akun.',
   confirmText = 'Ya, Keluar',
   cancelText = 'Batal',
-  color = '#ff714a',       // warna header & tombol confirm
-  width = '85%',           // ukuran card popup
+  color = '#ff714a',
+  width = '85%',
 }) => {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.container(width)}>
 
-          {/* HEADER */}
           <View style={styles.header(color)}>
             <Text style={styles.headerText}>{title}</Text>
           </View>
 
-          {/* BODY */}
           <View style={styles.body}>
             <Text style={styles.title}>{description}</Text>
             <Text style={styles.subtitle}>{subtitle}</Text>
           </View>
 
-          {/* BUTTONS */}
           <View style={styles.buttonRow}>
             <TouchableOpacity
               style={styles.cancelButton}

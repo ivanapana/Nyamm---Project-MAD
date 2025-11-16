@@ -1,5 +1,3 @@
-// src/pages/Profile/index.tsx
-
 import React, {useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -16,9 +14,9 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('userToken'); // hapus token login
+      await AsyncStorage.removeItem('userToken');
       setShowPopUp(false);
-      navigation.replace('SignIn'); // kembali ke halaman SignIn
+      navigation.replace('SignIn');
     } catch (error) {
       console.log('Gagal logout:', error);
     }
