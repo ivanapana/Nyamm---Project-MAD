@@ -50,7 +50,7 @@ export default function Dashboard() {
           />
           <TouchableOpacity
             style={styles.profileButton}
-            onPress={() => console.log('Profile pressed')}>
+            onPress={() => navigation.navigate('Profile')}>
             <Icon name="user" size={24} color="#000" />
           </TouchableOpacity>
         </View>

@@ -2,11 +2,11 @@
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import Profile from './src/pages/Profile';
 import GetStarted from './src/pages/GetStarted';
 import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
 import {BottomTabNavigator} from './src/components/organisms/BottomNavbar/BottomTabNavigator';
+import Profile from './src/pages/Profile';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,6 +18,7 @@ export default function App() {
         <Stack.Screen name="SignIn" component={SignIn} />
         <Stack.Screen name="SignUp" component={SignUp} />
         <Stack.Screen name="Main" component={BottomTabNavigator} />
+        <Stack.Screen name="Profile" component={Profile} />
       </Stack.Navigator>
     </NavigationContainer>
   );
