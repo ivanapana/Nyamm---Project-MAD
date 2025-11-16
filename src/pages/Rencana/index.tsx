@@ -1,11 +1,15 @@
-// src/pages/Rencana/index.tsx
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, StyleSheet} from 'react-native';
+import ButtonYellow from '../../components/atoms/ButtonYellow';
 
-export default function Rencana() {
+export default function Rencana({navigation}) {
+  const handleGoToDetail = () => {
+    navigation.navigate('Detail');
+  };
+
   return (
     <View style={styles.container}>
-      <Text>Halaman Rencana</Text>
+      <ButtonYellow label="Lihat Detail Resep" onPress={handleGoToDetail} />
     </View>
   );
 }
@@ -16,5 +20,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+    paddingHorizontal: 24,
   },
 });
