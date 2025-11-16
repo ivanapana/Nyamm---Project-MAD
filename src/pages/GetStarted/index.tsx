@@ -1,3 +1,4 @@
+//src/pages/GetStarted/index.tsx
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {Background, Title, ButtonYellow} from '../../components/atoms';

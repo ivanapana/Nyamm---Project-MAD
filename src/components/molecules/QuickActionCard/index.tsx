@@ -1,12 +1,20 @@
-// src/components/molecules/QuickActionCard.tsx
+// src/components/molecules/QuickActionCard/index.js
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, TouchableOpacity} from 'react-native';
 import Text from '../../atoms/Text';
 import Icon from '../../atoms/Icon';
 
-const QuickActionCard = ({title, subtitle, icon, variant = 'primary'}) => {
+const QuickActionCard = ({
+  title,
+  subtitle,
+  icon,
+  variant = 'primary',
+  onPress,
+}) => {
   return (
-    <View
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={onPress}
       style={[
         styles.card,
         variant === 'primary' ? styles.primary : styles.secondary,
@@ -18,6 +26,7 @@ const QuickActionCard = ({title, subtitle, icon, variant = 'primary'}) => {
           color={variant === 'primary' ? '#fff' : '#F59E0B'}
         />
       </View>
+
       <Text
         style={[
           styles.title,
@@ -25,6 +34,7 @@ const QuickActionCard = ({title, subtitle, icon, variant = 'primary'}) => {
         ]}>
         {title}
       </Text>
+
       <Text
         type="caption"
         style={
@@ -34,7 +44,7 @@ const QuickActionCard = ({title, subtitle, icon, variant = 'primary'}) => {
         }>
         {subtitle}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -47,6 +57,7 @@ const styles = StyleSheet.create({
     flex: 1,
     elevation: 4,
     shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 8,
   },
@@ -70,20 +81,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: 'bold',
-    textAlign: 'left',
   },
-  titlePrimary: {
-    color: '#fff',
-  },
-  titleSecondary: {
-    color: '#1F2937',
-  },
-  subtitlePrimary: {
-    color: '#FEF3C7',
-    marginTop: 4,
-  },
-  subtitleSecondary: {
-    color: '#6B7280',
-    marginTop: 4,
-  },
+  titlePrimary: {color: '#fff'},
+  titleSecondary: {color: '#1F2937'},
+  subtitlePrimary: {color: '#FEF3C7', marginTop: 4},
+  subtitleSecondary: {color: '#6B7280', marginTop: 4},
 });
