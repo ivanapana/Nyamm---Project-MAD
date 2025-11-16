@@ -1,4 +1,3 @@
-// src/components/molecules/MenuCard.tsx
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import TextAtom from '../../atoms/Text';
@@ -38,6 +37,11 @@ const styles = StyleSheet.create({
     borderColor: '#FED7AA',
     marginBottom: 12,
     alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   emoji: {
     fontSize: 32,

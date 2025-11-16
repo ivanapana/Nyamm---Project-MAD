@@ -1,4 +1,4 @@
-// src/components/atoms/Icon.tsx
+// src/components/atoms/Icon/index.tsx
 import React from 'react';
 import Feather from 'react-native-vector-icons/Feather';
 
@@ -11,6 +11,7 @@ const iconNames = {
   search: 'search',
   plus: 'plus',
   fridge: 'archive',
+  check: 'check',
 };
 
 const Icon = ({name, size = 24, color = '#000'}) => {
