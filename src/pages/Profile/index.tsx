@@ -4,7 +4,6 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
-
 import Card from '../../components/molecules/Card';
 import Button from '../../components/atoms/Button';
 import PopUP from '../../components/organisms/PopUP';
@@ -16,11 +15,11 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('userToken'); // hapus token login
+      await AsyncStorage.removeItem('userToken');
       setShowPopUp(false);
-      navigation.replace('SignIn'); // kembali ke halaman SignIn
+      navigation.replace('SignIn');
     } catch (error) {
-      console.log('Gagal logout:', error);
+      console.error('Gagal logout:', error);
     }
   };
 

@@ -23,13 +23,11 @@ const PopUP = ({
             <Text style={styles.headerText}>{title}</Text>
           </View>
 
-          {/* BODY */}
           <View style={styles.body}>
             <Text style={styles.title}>{description}</Text>
             <Text style={styles.subtitle}>{subtitle}</Text>
           </View>
 
-          {/* BUTTONS */}
           <View style={styles.buttonRow}>
             <TouchableOpacity
               style={styles.cancelButton}
