@@ -1,31 +1,32 @@
 import React from 'react';
-import {TouchableOpacity, Text, StyleSheet} from 'react-native';
 
-const Button = ({label, onPress, color, style, paddingHorizontal, paddingVertical }) => {
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary';
+  onClick?: () => void;
+  className?: string;
+}
+
+const Button: React.FC<ButtonProps> = ({ 
+  children, 
+  variant = 'primary', 
+  onClick, 
+  className = '' 
+}) => {
+  const baseStyle = 'w-full py-4 rounded-2xl font-semibold text-base transition-all';
+  const variants = {
+    primary: 'bg-[#FDB022] text-white hover:bg-[#E69F1F]',
+    secondary: 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+  };
+  
   return (
-    <TouchableOpacity
-      style={[styles.button, color && {backgroundColor: color}, style]}
-      activeOpacity={0.8}
-      onPress={onPress}>
-      <Text style={styles.text}>{label}</Text>
-    </TouchableOpacity>
+    <button 
+      onClick={onClick}
+      className={`${baseStyle} ${variants[variant]} ${className}`}
+    >
+      {children}
+    </button>
   );
 };
 
 export default Button;
-
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: '#FBBF24',
-    paddingVertical: 16,
-    paddingHorizontal: 100,
-    borderRadius: 20,
-    marginTop: 10,
-  },
-  text: {
-    color: '#ffffffff',
-    fontWeight: '700',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-});
