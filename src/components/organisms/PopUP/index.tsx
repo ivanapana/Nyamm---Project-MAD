@@ -1,11 +1,6 @@
+//src/components/organisms/PopUP/index.tsx
 import React from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import {Modal, View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 
 const PopUP = ({
   visible,
@@ -16,14 +11,13 @@ const PopUP = ({
   subtitle = 'Kamu perlu login kembali untuk mengakses akun.',
   confirmText = 'Ya, Keluar',
   cancelText = 'Batal',
-  color = '#ff714a',       // warna header & tombol confirm
-  width = '85%',           // ukuran card popup
+  color = '#ff714a',
+  width = '85%',
 }) => {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.container(width)}>
-
           {/* HEADER */}
           <View style={styles.header(color)}>
             <Text style={styles.headerText}>{title}</Text>
@@ -51,7 +45,6 @@ const PopUP = ({
               <Text style={styles.confirmText}>{confirmText}</Text>
             </TouchableOpacity>
           </View>
-
         </View>
       </View>
     </Modal>

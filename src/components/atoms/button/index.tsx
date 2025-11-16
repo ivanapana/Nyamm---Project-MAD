@@ -1,32 +1,45 @@
+// src/components/atoms/Button/index.tsx
 import React from 'react';
+import {TouchableOpacity, Text, StyleSheet} from 'react-native';
 
-interface ButtonProps {
-  children: React.ReactNode;
-  variant?: 'primary' | 'secondary';
-  onClick?: () => void;
-  className?: string;
-}
-
-const Button: React.FC<ButtonProps> = ({ 
-  children, 
-  variant = 'primary', 
-  onClick, 
-  className = '' 
+const Button = ({
+  label,
+  onPress,
+  color = '#007AFF',
+  textColor = '#fff',
+  disabled = false,
 }) => {
-  const baseStyle = 'w-full py-4 rounded-2xl font-semibold text-base transition-all';
-  const variants = {
-    primary: 'bg-[#FDB022] text-white hover:bg-[#E69F1F]',
-    secondary: 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-  };
-  
   return (
-    <button 
-      onClick={onClick}
-      className={`${baseStyle} ${variants[variant]} ${className}`}
-    >
-      {children}
-    </button>
+    <TouchableOpacity
+      style={[
+        styles.button,
+        {backgroundColor: color},
+        disabled && styles.disabled,
+      ]}
+      onPress={onPress}
+      disabled={disabled}
+      activeOpacity={0.7}>
+      <Text style={[styles.text, {color: textColor}]}>{label}</Text>
+    </TouchableOpacity>
   );
 };
+
+const styles = StyleSheet.create({
+  button: {
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 100,
+  },
+  text: {
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+});
 
 export default Button;
