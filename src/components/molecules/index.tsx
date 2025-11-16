@@ -2,7 +2,6 @@ import React from 'react';
 import {View, TextInput, Text, StyleSheet} from 'react-native';
 export {default as FeatureCard} from './FeatureCard';
 export {default as Footer} from './Footer';
-export {default as Card} from './Card';
 
 const TextField = ({
   label,

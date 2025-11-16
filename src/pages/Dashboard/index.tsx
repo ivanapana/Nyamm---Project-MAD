@@ -1,4 +1,4 @@
-// src/pages/Dashboard.tsx
+// src/pages/Dashboard/index.tsx
 import React, {useState} from 'react';
 import {
   SafeAreaView,
@@ -30,8 +30,21 @@ const DASHBOARD_MENU = [
   {time: 'Makan Malam', emoji: '🌙', meal: 'Sop Iga Sapi', duration: '45 min'},
 ];
 
-const Dashboard = () => {
+const Dashboard = ({navigation}) => {
   const [activeTab, setActiveTab] = useState('home');
+
+  const handleTabPress = (tab) => {
+    setActiveTab(tab);
+    
+    // Navigate ke PerencanaMenu ketika tab 'plan' diklik
+    if (tab === 'plan') {
+      navigation.navigate('PerencanaMenu');
+    }
+  };
+
+  const handlePerencanaMenuPress = () => {
+    navigation.navigate('PerencanaMenu');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -43,8 +56,8 @@ const Dashboard = () => {
             source={require('../../assets/images/logoo.png')}
             style={{
               position: 'absolute',
-              left: 0, // jarak dari kiri (ubah sesuka hati)
-              top: -25, // ← jarak dari atas (ubah sesuka hati)
+              left: 0,
+              top: -25,
               width: 120,
               height: 44,
               resizeMode: 'contain',
@@ -80,6 +93,7 @@ const Dashboard = () => {
             subtitle="Atur menu mingguan"
             icon="calendar"
             variant="primary"
+            onPress={handlePerencanaMenuPress}
           />
           <QuickActionCard
             title="Daftar Belanja"
@@ -90,7 +104,7 @@ const Dashboard = () => {
         </View>
       </ScrollView>
 
-      <BottomNavBar activeTab={activeTab} onTabPress={setActiveTab} />
+      <BottomNavBar activeTab={activeTab} onTabPress={handleTabPress} />
     </SafeAreaView>
   );
 };

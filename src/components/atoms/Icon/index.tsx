@@ -20,15 +20,9 @@ const iconNames = {
   fridge: 'archive',
 };
 
-type IconName = keyof typeof iconNames;
+// Type 'IconName' dan 'IconProps' telah dihapus
 
-type IconProps = {
-  name: IconName;
-  size?: number;
-  color?: string;
-};
-
-const Icon = ({name, size = 24, color = '#000'}: IconProps) => {
+const Icon = ({name, size = 24, color = '#000'}) => {
   if (name === 'chef') {
     return <ChefHatIcon width={size} height={size} fill={color} />;
   }

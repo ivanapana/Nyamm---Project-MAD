@@ -12,7 +12,8 @@ import {
 import BackButton from '../../components/atoms/BackButtonSign';
 import Icon from '../../components/atoms/Icon';
 import {ButtonYellow} from '../../components/atoms';
-import {Card, TextField} from '../../components/molecules';
+import {TextField} from '../../components/molecules';
+import Card from '../../components/organisms/Card';
 
 const SignInScreen = ({navigation}) => {
 	const [username, setUsername] = useState('');
