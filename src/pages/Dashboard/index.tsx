@@ -1,5 +1,5 @@
-// src/pages/Dashboard.tsx
-import React, {useState} from 'react';
+// src/pages/Dashboard/index.tsx
+import React from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -7,12 +7,14 @@ import {
   StyleSheet,
   StatusBar,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import Text from '../../components/atoms/Text';
 import SearchBar from '../../components/molecules/SearchBar';
 import MenuCard from '../../components/molecules/MenuCard';
 import QuickActionCard from '../../components/molecules/QuickActionCard';
-import BottomNavBar from '../../components/organisms/BottomNavbar';
+import Icon from '../../components/atoms/Icon';
+import {useNavigation} from '@react-navigation/native';
 
 const DASHBOARD_MENU = [
   {
@@ -30,8 +32,11 @@ const DASHBOARD_MENU = [
   {time: 'Makan Malam', emoji: '🌙', meal: 'Sop Iga Sapi', duration: '45 min'},
 ];
 
-const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('home');
+export default function Dashboard() {
+  const today = new Date();
+  const options = {weekday: 'long', day: 'numeric', month: 'short'};
+  const formattedDate = today.toLocaleDateString('id-ID', options);
+  const navigation = useNavigation();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -41,15 +46,13 @@ const Dashboard = () => {
         <View style={styles.headerTop}>
           <Image
             source={require('../../assets/images/logoo.png')}
-            style={{
-              position: 'absolute',
-              left: 0, // jarak dari kiri (ubah sesuka hati)
-              top: -25, // ← jarak dari atas (ubah sesuka hati)
-              width: 120,
-              height: 44,
-              resizeMode: 'contain',
-            }}
+            style={styles.logo}
           />
+          <TouchableOpacity
+            style={styles.profileButton}
+            onPress={() => navigation.navigate('Profile')}>
+            <Icon name="user" size={24} color="#000" />
+          </TouchableOpacity>
         </View>
         <SearchBar placeholder="Cari resep favorit..." />
       </View>
@@ -58,7 +61,7 @@ const Dashboard = () => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View style={styles.titleRow}>
-              <Text type="icon" style={{fontSize: 20, color: '#FBBF24'}}>
+              <Text type="body" style={{fontSize: 20, color: '#FBBF24'}}>
                 👨‍🍳
               </Text>
               <Text type="subtitle" style={styles.sectionTitle}>
@@ -66,7 +69,7 @@ const Dashboard = () => {
               </Text>
             </View>
             <Text type="caption" style={styles.date}>
-              Minggu, 5 Okt
+              {formattedDate}
             </Text>
           </View>
           {DASHBOARD_MENU.map((item, i) => (
@@ -80,22 +83,21 @@ const Dashboard = () => {
             subtitle="Atur menu mingguan"
             icon="calendar"
             variant="primary"
+            onPress={() => navigation.navigate('Rencana')}
           />
+
           <QuickActionCard
             title="Daftar Belanja"
             subtitle="12 item menunggu"
             icon="cart"
             variant="secondary"
+            onPress={() => navigation.navigate('Belanja')}
           />
         </View>
       </ScrollView>
-
-      <BottomNavBar activeTab={activeTab} onTabPress={setActiveTab} />
     </SafeAreaView>
   );
-};
-
-export default Dashboard;
+}
 
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#fff'},
@@ -114,15 +116,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  logo: {
-    width: 120,
-    height: 24,
-    resizeMode: 'contain',
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingBottom: 80,
-  },
+  logo: {width: 120, height: 44, resizeMode: 'contain'},
+  profileButton: {padding: 8},
+  content: {paddingHorizontal: 20, paddingBottom: 80},
   section: {
     backgroundColor: '#fff',
     borderRadius: 24,

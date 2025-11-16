@@ -1,4 +1,4 @@
-// src/components/molecules/SearchBar.tsx
+// src/components/molecules/SearchBar/index.tsx
 import React from 'react';
 import {View, TextInput, StyleSheet} from 'react-native';
 import Icon from '../../atoms/Icon';

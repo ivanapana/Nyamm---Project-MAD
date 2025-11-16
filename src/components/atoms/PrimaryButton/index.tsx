@@ -1,4 +1,4 @@
-// src/components/atoms/PrimaryButton.tsx
+// src/components/atoms/PrimaryButton/index.tsx
 import React from 'react';
 import {TouchableOpacity, Text, StyleSheet} from 'react-native';
 

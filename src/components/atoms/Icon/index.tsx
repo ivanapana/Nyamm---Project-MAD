@@ -1,4 +1,4 @@
-// src/components/atoms/Icon.tsx
+// src/components/atoms/Icon/index.tsx
 import React from 'react';
 import Feather from 'react-native-vector-icons/Feather';
 import MailIcon from '../../../assets/images/mail.svg';
@@ -18,6 +18,7 @@ const iconNames = {
   search: 'search',
   plus: 'plus',
   fridge: 'archive',
+  check: 'check',
 };
 
 type IconName = keyof typeof iconNames;
