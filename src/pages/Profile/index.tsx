@@ -28,7 +28,9 @@ const Profile = () => {
     <View style={styles.container}>
       <View style={styles.headerBackground}>
         <View style={styles.headerRow}>
-          <BackButton onPress={() => navigation.navigate('Dashboard')} />
+          <BackButton
+            onPress={() => navigation.navigate('Main', {screen: 'home'})}
+          />
           <Text style={styles.title}>Profil Saya</Text>
         </View>
       </View>
