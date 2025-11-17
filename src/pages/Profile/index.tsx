@@ -4,7 +4,7 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
-import Card from '../../components/molecules/Card';
+import Card from '../../components/organisms/Card';
 import Button from '../../components/atoms/Button';
 import PopUP from '../../components/organisms/PopUP';
 import BackButton from '../../components/atoms/BackButton';

@@ -8,7 +8,7 @@ import SignUp from './src/pages/SignUp';
 import {BottomTabNavigator} from './src/components/organisms/BottomNavbar/BottomTabNavigator';
 import Profile from './src/pages/Profile';
 import Detail from './src/pages/Detail';
-import PerencanaMenu from './src/pages/PerencanaMenu';
+import Rencana from './src/pages/Rencana';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -23,7 +23,7 @@ export default function App() {
         <Stack.Screen name="Main" component={BottomTabNavigator} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="Detail" component={Detail} />
-        <Stack.Screen name="PerencanaMenu" component={PerencanaMenu} />
+        <Stack.Screen name="Rencana" component={Rencana} />
       </Stack.Navigator>
     </NavigationContainer>
   );
