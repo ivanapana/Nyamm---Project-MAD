@@ -2,6 +2,8 @@
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import KumpulanResep from './src/pages/KumpulanResep';
+
 import GetStarted from './src/pages/GetStarted';
 import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
@@ -24,6 +26,7 @@ export default function App() {
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="Detail" component={Detail} />
         <Stack.Screen name="Rencana" component={Rencana} />
+        <Stack.Screen name="KumpulanResep" component={KumpulanResep} />
       </Stack.Navigator>
     </NavigationContainer>
   );
