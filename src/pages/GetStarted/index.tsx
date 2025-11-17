@@ -19,7 +19,7 @@ const GetStarted = ({navigation}) => {
 
         <ButtonYellow
           label="Mulai Sekarang →"
-          onPress={() => navigation.navigate('SignUp')}
+          onPress={() => navigation.navigate('SignIn')}
         />
 
         <Footer navigation={navigation} />

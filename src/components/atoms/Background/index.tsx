@@ -1,4 +1,4 @@
-// src/components/atoms/Background.js
+// src/components/atoms/Background.tsx
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 
