@@ -10,37 +10,26 @@ import {
 } from 'react-native';
 import BackButton from '../../components/atoms/BackButtonSign';
 import Icon from '../../components/atoms/Icon';
-import ButtonYellow from '../../components/atoms/ButtonYellow';
-import TextField from '../../components/molecules/TextInputSign';
+import {ButtonYellow} from '../../components/atoms';
+import {TextField} from '../../components/molecules';
+import Card from '../../components/organisms/Card';
 
-const SignUpScreen = ({navigation}) => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+const SignInScreen = ({navigation}) => {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleBack = () => {
-    if (navigation && navigation.navigate) {
-      navigation.navigate('GetStarted');
-    }
+    navigation.goBack();
   };
 
-  const handleSignUp = () => {
-    console.log('Create Account:', {
-      firstName,
-      lastName,
-      password,
-      confirmPassword,
-    });
-
+  const handleSignIn = () => {
+    console.log('Sign In:', {username, password, rememberMe});
     if (navigation && navigation.navigate) {
-      navigation.navigate('SignIn');
+      navigation.navigate('Main', {screen: 'home'});
     }
   };
-
-  const isDisabled = !firstName || !lastName || !password || !confirmPassword;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -60,37 +49,24 @@ const SignUpScreen = ({navigation}) => {
             </View>
           </View>
 
-          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.title}>Selamat datang!</Text>
           <Text style={styles.subtitle}>
-            Join nyamm! and start cooking smarter
+            Masuk untuk melanjutkan perjalanan memasakmu
           </Text>
 
           <View style={styles.form}>
-            <View style={styles.nameRow}>
-              <View style={styles.nameFieldWrapper}>
-                <TextField
-                  label="First Name"
-                  placeholder="Marco"
-                  value={firstName}
-                  onChangeText={setFirstName}
-                  keyboardType="default"
-                />
-              </View>
-
-              <View style={styles.nameFieldWrapper}>
-                <TextField
-                  label="Last Name"
-                  placeholder="Pieter"
-                  value={lastName}
-                  onChangeText={setLastName}
-                  keyboardType="default"
-                />
-              </View>
-            </View>
+            <TextField
+              label="Nama pengguna"
+              placeholder="Nama pengguna"
+              value={username}
+              onChangeText={setUsername}
+              keyboardType="default"
+              leftIcon={<Icon name="mail" size={18} color="#9AA0A6" />}
+            />
 
             <TextField
-              label="Password"
-              placeholder="Password"
+              label="Kata sandi"
+              placeholder="Kata sandi"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -99,59 +75,56 @@ const SignUpScreen = ({navigation}) => {
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => setShowPassword(!showPassword)}>
-                  <Text
-                    style={{
-                      color: '#9AA0A6',
-                      fontSize: 18,
-                      fontWeight: '700',
-                    }}>
-                    O
-                  </Text>
-                </TouchableOpacity>
-              }
-            />
-            <TextField
-              label="Confirm Password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showConfirmPassword}
-              leftIcon={<Icon name="lock" size={18} color="#9AA0A6" />}
-              rightIcon={
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                  <Text
-                    style={{
-                      color: '#9AA0A6',
-                      fontSize: 18,
-                      fontWeight: '700',
-                    }}>
-                    O
-                  </Text>
+                  <Icon
+                    name={showPassword ? 'eyeOff' : 'eye'}
+                    size={18}
+                    color="#9AA0A6"
+                  />
                 </TouchableOpacity>
               }
             />
 
+            <View style={styles.optionsRow}>
+              <TouchableOpacity
+                style={styles.checkboxContainer}
+                activeOpacity={0.8}
+                onPress={() => setRememberMe(!rememberMe)}>
+                <View
+                  style={[
+                    styles.checkbox,
+                    rememberMe && styles.checkboxChecked,
+                  ]}>
+                  {rememberMe && <Text style={styles.checkboxMark}>✓</Text>}
+                </View>
+                <Text style={styles.checkboxLabel}>Ingat saya</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity activeOpacity={0.7}>
+                <Text style={styles.forgotPassword}>Lupa kata sandi?</Text>
+              </TouchableOpacity>
+            </View>
+
             <View style={styles.buttonWrapper}>
-              <ButtonYellow
-                label="Create Account"
-                onPress={handleSignUp}
-                disabled={isDisabled}
-              />
+              <ButtonYellow label="Masuk" onPress={handleSignIn} />
+            </View>
+
+            <View style={styles.dividerContainer}>
+              <View style={styles.divider} />
+              <Text style={styles.dividerText}>ATAU</Text>
+              <View style={styles.divider} />
             </View>
 
             <View style={styles.footerTextContainer}>
               <Text style={styles.footerText}>
-                Already have an account?{' '}
+                Belum punya akun?{' '}
                 <Text
                   style={styles.footerLink}
                   onPress={() =>
                     navigation && navigation.navigate
-                      ? navigation.navigate('SignIn')
+                      ? navigation.navigate('SignUp')
                       : null
                   }>
-                  Sign In
+                  Daftar
                 </Text>
               </Text>
             </View>
@@ -221,22 +194,67 @@ const styles = StyleSheet.create({
   form: {
     width: '100%',
   },
-  nameRow: {
+  optionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
-    marginBottom: 8,
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 24,
   },
-  nameFieldWrapper: {
-    flex: 1,
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkbox: {
+    width: 18,
+    height: 18,
+    borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: '#D1D5DB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  checkboxChecked: {
+    backgroundColor: '#FDB022',
+    borderColor: '#FDB022',
+  },
+  checkboxMark: {
+    color: '#111827',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  checkboxLabel: {
+    fontSize: 13,
+    color: '#4B5563',
+  },
+  forgotPassword: {
+    fontSize: 13,
+    color: '#F59E0B',
+    fontWeight: '600',
   },
   buttonWrapper: {
-    marginTop: 24,
-    marginBottom: 16,
+    marginBottom: 24,
+    marginTop: 8,
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  divider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E5E7EB',
+  },
+  dividerText: {
+    marginHorizontal: 12,
+    fontSize: 12,
+    color: '#9CA3AF',
+    fontWeight: '500',
   },
   footerTextContainer: {
     alignItems: 'center',
-    marginTop: 4,
   },
   footerText: {
     fontSize: 14,
@@ -248,4 +266,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignUpScreen;
+export default SignInScreen;

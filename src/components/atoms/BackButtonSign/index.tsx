@@ -1,3 +1,4 @@
+//src/components/atoms/BackButtonSign/index.tsx
 import React from 'react';
 import {TouchableOpacity, StyleSheet} from 'react-native';
 import BackButtonIcon from '../../../assets/images/backk.svg';
@@ -27,5 +28,5 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-  }),
+  }),
 });

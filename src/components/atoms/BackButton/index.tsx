@@ -1,3 +1,4 @@
+//src/components/atoms/BackButton/index.tsx
 import React from 'react';
 import {TouchableOpacity, StyleSheet} from 'react-native';
 import BackButtonIcon from '../../../assets/images/BackButton.svg';

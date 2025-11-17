@@ -1,6 +1,8 @@
+// src/components/atoms/Icon/index.js
 
 import React from 'react';
 
+// Impor SVG dari folder assets/images
 import ChefHatIcon from '../../../assets/images/chef-hat-svgrepo-com.svg';
 import CalendarIcon from '../../../assets/images/rencana.svg';
 import CartIcon from '../../../assets/images/belanja.svg';

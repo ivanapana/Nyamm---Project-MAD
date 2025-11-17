@@ -1,11 +1,6 @@
+//src/components/organisms/PopUP/index.tsx
 import React from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import {Modal, View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 
 const PopUP = ({
   visible,
@@ -23,7 +18,7 @@ const PopUP = ({
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.container(width)}>
-
+          {/* HEADER */}
           <View style={styles.header(color)}>
             <Text style={styles.headerText}>{title}</Text>
           </View>
@@ -48,7 +43,6 @@ const PopUP = ({
               <Text style={styles.confirmText}>{confirmText}</Text>
             </TouchableOpacity>
           </View>
-
         </View>
       </View>
     </Modal>
