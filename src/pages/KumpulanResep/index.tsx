@@ -1,3 +1,4 @@
+// src/pages/KumpulanResep/index.js
 import React, {useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import RecipePageLayout from '../../Templates/RecipePageLayout';
@@ -13,8 +14,12 @@ const KumpulanResep = () => {
   };
 
   const handleBack = () => {
-  navigation.navigate('PerencanaMenu');
-};
+    navigation.goBack();
+  };
+
+  const handleViewDetail = recipe => {
+    navigation.navigate('Detail', {recipe});
+  };
 
   const filteredRecipes = recipesData.filter(
     recipe =>
@@ -24,7 +29,7 @@ const KumpulanResep = () => {
 
   return (
     <RecipePageLayout onSearch={handleSearch} onBack={handleBack}>
-      <RecipeList recipes={filteredRecipes} />
+      <RecipeList recipes={filteredRecipes} onPressItem={handleViewDetail} />
     </RecipePageLayout>
   );
 };

@@ -1,3 +1,4 @@
+//src/components/molecules/RecipeInfo/index.tsx
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import Text from '../../atoms/Text';
@@ -9,20 +10,18 @@ const RecipeInfo = ({title, description, cookTime}) => {
       <Text type="subtitle" numberOfLines={1}>
         {title}
       </Text>
-      
+
       <Spacing size="xs" />
-      
+
       <Text type="body" numberOfLines={2}>
         {description}
       </Text>
-      
+
       <Spacing size="sm" />
-      
+
       <View style={styles.timeContainer}>
         <View style={styles.timeSpacing} />
-        <Text type="caption">
-          {cookTime}
-        </Text>
+        <Text type="caption">{cookTime}</Text>
       </View>
     </View>
   );
