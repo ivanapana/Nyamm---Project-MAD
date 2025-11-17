@@ -1,4 +1,3 @@
-//src/pages/Rencana/index.tsx
 import React, {useState} from 'react';
 import {
   View,
@@ -60,15 +59,18 @@ const Rencana = ({navigation}) => {
     },
   ];
 
+  // Fungsi navigasi ke Kumpulan Resep
+  const goToKumpulanResep = () => {
+    navigation.navigate('KumpulanResep');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
+          onPress={() => navigation.goBack()}></TouchableOpacity>
         <View style={styles.headerTextContainer}>
           <Text style={styles.headerTitle}>Perencana Menu</Text>
           <Text style={styles.headerSubtitle}>Oktober 2025</Text>
@@ -152,18 +154,18 @@ const Rencana = ({navigation}) => {
                           <Text style={styles.duration}>{item.duration}</Text>
                         </View>
                       </View>
-                      <MiniButtonYellow
-                        onPress={() => navigation.navigate('Detail')}
-                      />
+                      <MiniButtonYellow onPress={goToKumpulanResep} />
                     </View>
                   </Card>
                 ))
               ) : (
-                <Card style={styles.emptyCard} padding={40} center>
-                  <Text style={styles.emptyText}>
-                    Tambah Menu {meal.category}
-                  </Text>
-                </Card>
+                <TouchableOpacity onPress={goToKumpulanResep}>
+                  <Card style={styles.emptyCard} padding={40} center>
+                    <Text style={styles.emptyText}>
+                      Tambah Menu {meal.category}
+                    </Text>
+                  </Card>
+                </TouchableOpacity>
               )}
             </View>
           ))}
@@ -175,6 +177,7 @@ const Rencana = ({navigation}) => {
 
 export default Rencana;
 
+// 👇 Styles tetap sama seperti sebelumnya
 const styles = StyleSheet.create({
   container: {
     flex: 1,

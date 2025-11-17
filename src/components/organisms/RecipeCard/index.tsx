@@ -1,26 +1,25 @@
+// src/components/organisms/RecipeCard/index.tsx
 import React from 'react';
 import {View, StyleSheet, Alert, Image} from 'react-native';
 import RecipeInfo from '../../molecules/RecipeInfo';
 import RecipeActions from '../../molecules/RecipeAction';
 import Spacing from '../../atoms/Spacing';
 
-const RecipeCard = ({recipe}) => {
+const RecipeCard = ({recipe, onViewDetail}) => {
   const handleAddToMenu = () => {
-    console.log('Tambah ke menu:', recipe.title);
     Alert.alert('Berhasil', `${recipe.title} ditambahkan ke menu`);
   };
 
-  const handleViewDetail = () => {
-    console.log('Lihat detail:', recipe.title);
-    Alert.alert('Detail Resep', recipe.title);
+  const handleDetail = () => {
+    if (onViewDetail) onViewDetail(recipe);
   };
 
   return (
     <View style={styles.card}>
       <View style={styles.imageContainer}>
         {recipe.image ? (
-          <Image 
-            source={{uri: recipe.image}} 
+          <Image
+            source={{uri: recipe.image}}
             style={styles.image}
             resizeMode="cover"
           />
@@ -44,7 +43,7 @@ const RecipeCard = ({recipe}) => {
 
         <RecipeActions
           onAddToMenu={handleAddToMenu}
-          onViewDetail={handleViewDetail}
+          onViewDetail={handleDetail}
         />
       </View>
     </View>

@@ -1,20 +1,21 @@
+// src/components/organisms/RecipeList/index.tsx
 import React from 'react';
 import {FlatList, View, StyleSheet} from 'react-native';
 import RecipeCard from '../RecipeCard';
 import Text from '../../atoms/Text';
 
-const RecipeList = ({recipes}) => {
+const RecipeList = ({recipes, onPressItem}) => {
   if (recipes.length === 0) {
     return (
       <View style={styles.emptyContainer}>
-        <Text type="body">
-          Tidak ada resep yang ditemukan
-        </Text>
+        <Text type="body">Tidak ada resep yang ditemukan</Text>
       </View>
     );
   }
 
-  const renderItem = ({item}) => <RecipeCard recipe={item} />;
+  const renderItem = ({item}) => (
+    <RecipeCard recipe={item} onViewDetail={() => onPressItem(item)} />
+  );
 
   return (
     <FlatList

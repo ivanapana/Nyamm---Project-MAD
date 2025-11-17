@@ -46,14 +46,12 @@ export default function Dashboard() {
           <Image
             source={require('../../assets/images/logoo.png')}
             style={{
-              position: 'absolute',
-              left: 0,
-              top: -25,
               width: 120,
               height: 44,
               resizeMode: 'contain',
             }}
           />
+
           <TouchableOpacity
             style={styles.profileButton}
             onPress={() => navigation.navigate('Profile')}>
