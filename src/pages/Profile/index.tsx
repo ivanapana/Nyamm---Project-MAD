@@ -4,23 +4,22 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
-
 import Card from '../../components/molecules/Card';
 import Button from '../../components/atoms/Button';
 import PopUP from '../../components/organisms/PopUP';
 import BackButton from '../../components/atoms/BackButton';
 
 const Profile = () => {
-  const navigation = useNavigation();
+  const navigation: any = useNavigation();
   const [showPopUp, setShowPopUp] = useState(false);
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('userToken'); // hapus token login
+      await AsyncStorage.removeItem('userToken');
       setShowPopUp(false);
-      navigation.replace('SignIn'); // kembali ke halaman SignIn
+      navigation.replace('SignIn');
     } catch (error) {
-      console.log('Gagal logout:', error);
+      console.error('Gagal logout:', error);
     }
   };
 
@@ -29,7 +28,9 @@ const Profile = () => {
       <View style={styles.headerBackground}>
         <View style={styles.headerRow}>
           <BackButton
-            onPress={() => navigation.navigate('Main', {screen: 'home'})}
+            onPress={() =>
+              navigation.navigate('Main' as never, {screen: 'home'} as never)
+            }
           />
           <Text style={styles.title}>Profil Saya</Text>
         </View>
