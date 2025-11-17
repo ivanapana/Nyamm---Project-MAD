@@ -36,16 +36,11 @@ const DASHBOARD_MENU = [
   {time: 'Makan Malam', emoji: '🌙', meal: 'Sop Iga Sapi', duration: '45 min'},
 ];
 
-<<<<<<< HEAD
-const Dashboard = ({navigation}) => {
-  const [activeTab, setActiveTab] = useState('home');
-=======
 export default function Dashboard() {
   const today = new Date();
   const options = {weekday: 'long', day: 'numeric', month: 'short'};
   const formattedDate = today.toLocaleDateString('id-ID', options);
   const navigation = useNavigation();
->>>>>>> development
 
   const handleTabPress = (tab) => {
     setActiveTab(tab);

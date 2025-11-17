@@ -11,7 +11,6 @@ import {
 import BackButton from '../../components/atoms/BackButtonSign';
 import Icon from '../../components/atoms/Icon';
 import ButtonYellow from '../../components/atoms/ButtonYellow';
-import Card from '../../components/molecules/Card';
 import TextField from '../../components/molecules/TextInputSign';
 
 const SignUpScreen = ({navigation}) => {
