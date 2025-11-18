@@ -1,34 +1,33 @@
-// File: App.tsx
-
+// App.js (atau App.tsx tapi tanpa type)
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import KumpulanResep from './src/pages/KumpulanResep';
 
 import GetStarted from './src/pages/GetStarted';
 import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
-import Dashboard from './src/pages/Dashboard';
-import PerencanaMenu from './src/pages/PerencanaMenu';
-import Bahan from './src/pages/Bahan';
-
+import {BottomTabNavigator} from './src/components/organisms/BottomNavbar/BottomTabNavigator';
+import Profile from './src/pages/Profile';
+import Detail from './src/pages/Detail';
+import Rencana from './src/pages/Rencana';
 const Stack = createNativeStackNavigator();
 
-const App = () => {
+export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        screenOptions={{ headerShown: false }}
-        initialRouteName="Bahan"
-      >
+        screenOptions={{headerShown: false}}
+        initialRouteName="GetStarted">
         <Stack.Screen name="GetStarted" component={GetStarted} />
         <Stack.Screen name="SignIn" component={SignIn} />
         <Stack.Screen name="SignUp" component={SignUp} />
-        <Stack.Screen name="Dashboard" component={Dashboard} />
-        <Stack.Screen name="PerencanaMenu" component={PerencanaMenu} />
-        <Stack.Screen name="Bahan" component={Bahan} />
+        <Stack.Screen name="Main" component={BottomTabNavigator} />
+        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="Detail" component={Detail} />
+        <Stack.Screen name="Rencana" component={Rencana} />
+        <Stack.Screen name="KumpulanResep" component={KumpulanResep} />
       </Stack.Navigator>
     </NavigationContainer>
   );
-};
-
-export default App;
+}
