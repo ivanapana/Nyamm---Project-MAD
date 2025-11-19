@@ -12,6 +12,7 @@ import BackButton from '../../components/atoms/BackButtonSign';
 import Icon from '../../components/atoms/Icon';
 import ButtonYellow from '../../components/atoms/ButtonYellow';
 import TextField from '../../components/molecules/TextInputSign';
+import Card from '../../components/organisms/Card';
 
 const SignUpScreen = ({navigation}) => {
   const [firstName, setFirstName] = useState('');
