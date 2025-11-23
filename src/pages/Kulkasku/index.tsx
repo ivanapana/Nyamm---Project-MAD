@@ -1,5 +1,4 @@
-//src/pages/Kulkasku/index.tsx
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,152 +7,321 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  StyleSheet,
 } from 'react-native';
 
-import EditIngredientPopup from '../../components/organisms/EditIngredientPopup';
+// Import Firebase
+import {getDatabase, ref, onValue, update, remove} from 'firebase/database';
+import {getAuth} from 'firebase/auth';
 
-// Mock data
-const ingredients = [
-  {id: '1', name: 'Wortel', quantity: 500, unit: 'gram'},
-  {id: '2', name: 'Kentang', quantity: 3, unit: 'buah'},
-];
+// Import Popup yang sudah diperbarui
+import EditIngredientPopup from '../../components/organisms/EditIngredientPopup';
 
 const Kulkasku = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [currentIngredient, setCurrentIngredient] = useState(null);
+  
+  // State untuk data inventory
+  const [inventoryItems, setInventoryItems] = useState([]);
 
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  // 1. Ambil Data Realtime dari Firebase
+  useEffect(() => {
+    if (!user) return;
+    const db = getDatabase();
+    // Pastikan path ini sesuai dengan tempat data disimpan
+    const inventoryRef = ref(db, `inventory/${user.uid}`);
+
+    onValue(inventoryRef, snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        // Konversi object Firebase ke array untuk ditampilkan di list
+        const parsedItems = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key],
+        }));
+        setInventoryItems(parsedItems);
+      } else {
+        setInventoryItems([]);
+      }
+    });
+  }, [user]);
+
+  // Fungsi saat tombol Edit ditekan
   const handleEdit = ingredient => {
     setCurrentIngredient(ingredient);
     setIsPopupVisible(true);
   };
 
-  const handleSave = updatedIngredient => {
+  // Fungsi saat tombol Hapus ditekan
+  const handleDelete = (item) => {
     Alert.alert(
-      'Berhasil',
-      `Bahan "${updatedIngredient.name}" telah disimpan.`,
+      'Hapus Bahan',
+      `Yakin ingin menghapus ${item.name} dari kulkas?`,
+      [
+        {text: 'Batal', style: 'cancel'},
+        {
+          text: 'Hapus',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const db = getDatabase();
+              await remove(ref(db, `inventory/${user.uid}/${item.id}`));
+              // Tidak perlu alert sukses, item akan hilang otomatis dari layar
+            } catch (error) {
+              Alert.alert('Error', 'Gagal menghapus bahan.');
+            }
+          },
+        },
+      ],
     );
-    console.log('Updated:', updatedIngredient);
+  };
+
+  // Fungsi Simpan dari Popup (Menerima data yang sudah fix ada ID-nya)
+  const handleSave = async (updatedIngredient) => {
+    try {
+      const db = getDatabase();
+      
+      // Update data spesifik berdasarkan ID yang dikirim balik oleh Popup
+      await update(ref(db, `inventory/${user.uid}/${updatedIngredient.id}`), {
+        name: updatedIngredient.name,
+        quantity: updatedIngredient.quantity,
+        unit: updatedIngredient.unit,
+      });
+
+      setIsPopupVisible(false); 
+      Alert.alert('Berhasil', `Stok "${updatedIngredient.name}" telah diperbarui.`);
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Error', 'Gagal memperbarui data.');
+    }
   };
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
-      <View style={{backgroundColor: '#FFD700', padding: 20}}>
-        <Text style={{fontSize: 32, fontWeight: 'bold', color: 'white'}}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>
           Kulkasku
         </Text>
-        <Text style={{fontSize: 16, color: 'white', marginTop: 4}}>
+        <Text style={styles.headerSubtitle}>
           Inventaris dapur digital 👩‍🍳
         </Text>
       </View>
 
-      {/* Total Item Card */}
-      <View
-        style={{
-          margin: 20,
-          backgroundColor: 'white',
-          borderRadius: 20,
-          padding: 20,
-          shadowColor: '#000',
-          shadowOffset: {width: 0, height: 2},
-          shadowOpacity: 0.1,
-          shadowRadius: 8,
-          elevation: 5,
-        }}>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <View
-            style={{
-              backgroundColor: '#FFFACD',
-              borderRadius: 12,
-              padding: 12,
-              marginRight: 16,
-            }}>
+      {/* Card Total Item */}
+      <View style={styles.summaryCard}>
+        <View style={styles.summaryContent}>
+          <View style={styles.iconContainer}>
             <Image
               source={{
-                uri: 'https://via.placeholder.com/24/FFD700/FFFFFF?text=📦',
+                uri: 'https://img.icons8.com/color/48/000000/fridge.png',
               }}
-              style={{width: 24, height: 24}}
+              style={{width: 32, height: 32}}
             />
           </View>
           <View>
-            <Text style={{fontSize: 28, fontWeight: 'bold'}}>
-              {ingredients.length}
+            <Text style={styles.summaryCount}>
+              {inventoryItems.length} 
             </Text>
-            <Text style={{fontSize: 16, color: '#666'}}>
+            <Text style={styles.summaryLabel}>
               Total item di Kulkas
             </Text>
           </View>
         </View>
       </View>
 
-      {/* Semua Bahan List */}
-      <View
-        style={{
-          marginHorizontal: 20,
-          backgroundColor: '#FFF8E1',
-          borderRadius: 20,
-          padding: 20,
-          shadowColor: '#000',
-          shadowOffset: {width: 0, height: 2},
-          shadowOpacity: 0.1,
-          shadowRadius: 8,
-          elevation: 5,
-        }}>
-        <Text style={{fontSize: 24, fontWeight: 'bold', marginBottom: 8}}>
+      {/* List Bahan */}
+      <View style={styles.listContainer}>
+        <Text style={styles.listTitle}>
           Semua Bahan
         </Text>
-        <Text style={{fontSize: 16, color: '#666', marginBottom: 20}}>
-          {ingredients.length} item tersimpan
+        <Text style={styles.listSubtitle}>
+          {inventoryItems.length} item tersimpan
         </Text>
 
-        <ScrollView>
-          {ingredients.map(item => (
-            <View
-              key={item.id}
-              style={{
-                backgroundColor: 'white',
-                borderRadius: 12,
-                padding: 16,
-                marginBottom: 12,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                shadowColor: '#000',
-                shadowOffset: {width: 0, height: 1},
-                shadowOpacity: 0.05,
-                shadowRadius: 4,
-                elevation: 2,
-              }}>
-              <View>
-                <Text style={{fontSize: 18, fontWeight: 'bold'}}>
-                  {item.name}
-                </Text>
-                <Text style={{fontSize: 16, color: '#FFA500'}}>
-                  {item.quantity} {item.unit}
-                </Text>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {inventoryItems.length > 0 ? (
+            inventoryItems.map(item => (
+              <View key={item.id} style={styles.itemCard}>
+                
+                {/* Bagian Kiri: Teks Nama & Jumlah */}
+                <View style={{flex: 1}}>
+                  <Text style={styles.itemName}>
+                    {item.name}
+                  </Text>
+                  <Text style={styles.itemQuantity}>
+                    {item.quantity} {item.unit}
+                  </Text>
+                </View>
+
+                {/* Bagian Kanan: Tombol Aksi (Edit & Delete) */}
+                <View style={styles.actionContainer}>
+                  
+                  {/* Tombol Edit */}
+                  <TouchableOpacity 
+                    onPress={() => handleEdit(item)} 
+                    style={[styles.actionBtn, {backgroundColor: '#FEF3C7', marginRight: 8}]}>
+                    <Image
+                      source={{
+                        uri: 'https://img.icons8.com/fluency/48/000000/edit.png',
+                      }}
+                      style={{width: 20, height: 20}}
+                    />
+                  </TouchableOpacity>
+
+                  {/* Tombol Hapus */}
+                  <TouchableOpacity 
+                    onPress={() => handleDelete(item)}
+                    style={[styles.actionBtn, {backgroundColor: '#FEE2E2'}]}>
+                    <Image
+                      source={{
+                        uri: 'https://img.icons8.com/fluency/48/000000/filled-trash.png',
+                      }}
+                      style={{width: 20, height: 20}}
+                    />
+                  </TouchableOpacity>
+
+                </View>
               </View>
-              <TouchableOpacity onPress={() => handleEdit(item)}>
-                <Image
-                  source={{
-                    uri: 'https://via.placeholder.com/24/FFA500/FFFFFF?text=✏️',
-                  }}
-                  style={{width: 24, height: 24}}
-                />
-              </TouchableOpacity>
+            ))
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>
+                Kulkas masih kosong.
+              </Text>
+              <Text style={[styles.emptyStateText, {fontSize: 14}]}>
+                Pindahkan belanjaanmu kesini!
+              </Text>
             </View>
-          ))}
+          )}
         </ScrollView>
       </View>
 
-      {/* Popup */}
+      {/* Popup Edit */}
       <EditIngredientPopup
         visible={isPopupVisible}
         onClose={() => setIsPopupVisible(false)}
         ingredient={currentIngredient}
-        onSave={handleSave}
+        onSave={handleSave} 
       />
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1, 
+    backgroundColor: '#fff'
+  },
+  header: {
+    backgroundColor: '#FFD700', 
+    padding: 20
+  },
+  headerTitle: {
+    fontSize: 32, 
+    fontWeight: 'bold', 
+    color: 'white'
+  },
+  headerSubtitle: {
+    fontSize: 16, 
+    color: 'white', 
+    marginTop: 4
+  },
+  summaryCard: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  summaryContent: {
+    flexDirection: 'row', 
+    alignItems: 'center'
+  },
+  iconContainer: {
+    backgroundColor: '#FFFACD',
+    borderRadius: 12,
+    padding: 12,
+    marginRight: 16,
+  },
+  summaryCount: {
+    fontSize: 28, 
+    fontWeight: 'bold'
+  },
+  summaryLabel: {
+    fontSize: 16, 
+    color: '#666'
+  },
+  listContainer: {
+    flex: 1,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    backgroundColor: '#FFF8E1',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  listTitle: {
+    fontSize: 24, 
+    fontWeight: 'bold', 
+    marginBottom: 8
+  },
+  listSubtitle: {
+    fontSize: 16, 
+    color: '#666', 
+    marginBottom: 20
+  },
+  itemCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  itemName: {
+    fontSize: 18, 
+    fontWeight: 'bold', 
+    color: '#333'
+  },
+  itemQuantity: {
+    fontSize: 14, 
+    color: '#FFA500', 
+    marginTop: 4
+  },
+  actionContainer: {
+    flexDirection: 'row', 
+    alignItems: 'center'
+  },
+  actionBtn: {
+    padding: 8, 
+    borderRadius: 8
+  },
+  emptyState: {
+    alignItems: 'center', 
+    marginTop: 40
+  },
+  emptyStateText: {
+    color: '#999', 
+    fontSize: 16
+  }
+});
 
 export default Kulkasku;
