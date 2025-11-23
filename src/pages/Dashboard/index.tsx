@@ -1,3 +1,4 @@
+//src/pages/Dashboard/index.tsx
 import React from 'react';
 import {
   SafeAreaView,

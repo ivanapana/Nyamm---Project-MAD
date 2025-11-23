@@ -1,3 +1,4 @@
+// src/pages/SignIn/index.tsx
 import React, {useState} from 'react';
 import {
   StyleSheet,
@@ -17,6 +18,7 @@ import Card from '../../components/organisms/Card';
 const SignUpScreen = ({navigation}) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -32,6 +34,7 @@ const SignUpScreen = ({navigation}) => {
     console.log('Create Account:', {
       firstName,
       lastName,
+      email,
       password,
       confirmPassword,
     });
@@ -41,7 +44,8 @@ const SignUpScreen = ({navigation}) => {
     }
   };
 
-  const isDisabled = !firstName || !lastName || !password || !confirmPassword;
+  const isDisabled =
+    !firstName || !lastName || !email || !password || !confirmPassword;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -67,6 +71,7 @@ const SignUpScreen = ({navigation}) => {
           </Text>
 
           <View style={styles.form}>
+            {/* --- Bagian Nama --- */}
             <View style={styles.nameRow}>
               <View style={styles.nameFieldWrapper}>
                 <TextField
@@ -89,6 +94,16 @@ const SignUpScreen = ({navigation}) => {
               </View>
             </View>
 
+            {/* --- Kolom Email (Tanpa Ikon) --- */}
+            <TextField
+              label="Email Address"
+              placeholder="name@example.com"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+            />
+
+            {/* --- Bagian Password --- */}
             <TextField
               label="Password"
               placeholder="Password"
@@ -106,7 +121,7 @@ const SignUpScreen = ({navigation}) => {
                       fontSize: 18,
                       fontWeight: '700',
                     }}>
-                    O
+                    {showPassword ? 'X' : 'O'}
                   </Text>
                 </TouchableOpacity>
               }
@@ -128,7 +143,7 @@ const SignUpScreen = ({navigation}) => {
                       fontSize: 18,
                       fontWeight: '700',
                     }}>
-                    O
+                    {showConfirmPassword ? 'X' : 'O'}
                   </Text>
                 </TouchableOpacity>
               }

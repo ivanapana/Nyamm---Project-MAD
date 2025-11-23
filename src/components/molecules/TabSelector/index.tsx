@@ -1,3 +1,4 @@
+//src/components/molecules/TabSelector/index.tsx
 import React from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 

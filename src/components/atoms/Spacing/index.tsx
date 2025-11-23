@@ -1,3 +1,4 @@
+//src/components/atoms/Spacing/index.tsx
 import React from 'react';
 import {View} from 'react-native';
 
@@ -10,9 +11,8 @@ const Spacing = ({size = 'md', direction = 'vertical'}) => {
     xl: 32,
   };
 
-  const style = direction === 'vertical' 
-    ? {height: sizes[size]} 
-    : {width: sizes[size]};
+  const style =
+    direction === 'vertical' ? {height: sizes[size]} : {width: sizes[size]};
 
   return <View style={style} />;
 };

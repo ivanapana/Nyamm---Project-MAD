@@ -1,3 +1,4 @@
+//src/components/atoms/ProgressBar/index.tsx
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 

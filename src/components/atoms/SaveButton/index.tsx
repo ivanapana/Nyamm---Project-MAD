@@ -1,7 +1,8 @@
+//src/components/atoms/SaveButton/index.tsx
 import React from 'react';
-import { TouchableOpacity, Text, View } from 'react-native';
+import {TouchableOpacity, Text, View} from 'react-native';
 
-const SaveButton = ({ onPress, title }) => {
+const SaveButton = ({onPress, title}) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <View
@@ -13,16 +14,14 @@ const SaveButton = ({ onPress, title }) => {
           alignItems: 'center',
           flexDirection: 'row',
           justifyContent: 'center',
-        }}
-      >
+        }}>
         <Text
           style={{
             color: 'white',
             fontSize: 16,
             fontWeight: 'bold',
             marginRight: 8,
-          }}
-        >
+          }}>
           ✓ {title}
         </Text>
       </View>

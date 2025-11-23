@@ -1,15 +1,16 @@
+//src/components/molecules/TextInput/index.tsx
 import React from 'react';
 
 // Interface 'TextInputProps' dan type annotation ': React.FC<...>' telah dihapus
-const TextInput = ({ 
-  label, 
-  type = 'text', 
-  placeholder, 
-  value, 
+const TextInput = ({
+  label,
+  type = 'text',
+  placeholder,
+  value,
   onChange,
   icon,
   showPasswordToggle = false,
-  onTogglePassword
+  onTogglePassword,
 }) => {
   return (
     <div className="mb-5">
@@ -31,12 +32,17 @@ const TextInput = ({
           <button
             type="button"
             onClick={onTogglePassword}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-          >
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
             {/* Ikon mata tetap sebagai SVG inline */}
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
             </svg>
           </button>
         )}

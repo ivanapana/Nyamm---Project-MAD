@@ -1,3 +1,4 @@
+//src/components/molecules/StatCard/index.tsx
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 

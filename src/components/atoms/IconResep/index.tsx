@@ -1,3 +1,4 @@
+//src/components/atoms/IconResep/index.tsx
 import React from 'react';
 import Svg, {Path, Circle, Polyline, Line} from 'react-native-svg';
 

@@ -1,3 +1,4 @@
+//src/components/atoms/Text/index.tsx
 import React from 'react';
 import {Text as RNText} from 'react-native';
 
