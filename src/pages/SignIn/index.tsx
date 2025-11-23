@@ -1,3 +1,5 @@
+// src/pages/SignIn/index.js
+
 import React, {useState} from 'react';
 import {
   StyleSheet,
@@ -28,6 +30,7 @@ const SignInScreen = ({navigation}) => {
   };
 
   const handleSignIn = () => {
+    // 1. Validasi Input Kosong
     if (!email || !password) {
       showMessage({
         message: 'Email dan Password tidak boleh kosong',
@@ -38,6 +41,7 @@ const SignInScreen = ({navigation}) => {
 
     const auth = getAuth();
 
+    // 2. Proses Login Firebase
     signInWithEmailAndPassword(auth, email, password)
       .then(userCredential => {
         const user = userCredential.user;
@@ -49,23 +53,21 @@ const SignInScreen = ({navigation}) => {
           type: 'success',
         });
 
-        if (navigation && navigation.navigate) {
-          navigation.reset({
-            index: 0,
-            routes: [{name: 'MainApp', params: {screen: 'home', uid: user.uid}}],
-          });
-        }
+        navigation.replace('Main');
       })
       .catch(error => {
         const errorCode = error.code;
         let errorMessage = error.message;
 
+        // Custom Error Messages agar lebih ramah pengguna
         if (errorCode === 'auth/invalid-email') {
           errorMessage = 'Format email salah.';
         } else if (errorCode === 'auth/user-not-found') {
           errorMessage = 'Pengguna tidak ditemukan.';
         } else if (errorCode === 'auth/wrong-password') {
           errorMessage = 'Password salah.';
+        } else if (errorCode === 'auth/invalid-credential') {
+          errorMessage = 'Email atau password salah.';
         }
 
         showMessage({
@@ -165,11 +167,7 @@ const SignInScreen = ({navigation}) => {
                 Belum punya akun?{' '}
                 <Text
                   style={styles.footerLink}
-                  onPress={() =>
-                    navigation && navigation.navigate
-                      ? navigation.navigate('SignUp')
-                      : null
-                  }>
+                  onPress={() => navigation.navigate('SignUp')}>
                   Daftar
                 </Text>
               </Text>

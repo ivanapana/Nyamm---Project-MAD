@@ -1,4 +1,3 @@
-
 import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -61,7 +60,7 @@ const Profile = () => {
       <View style={styles.headerBackground}>
         <View style={styles.headerRow}>
           <BackButton
-            onPress={() => navigation.navigate('MainApp', {screen: 'home'})}
+            onPress={() => navigation.navigate('Main', {screen: 'home'})}
           />
           <Text style={styles.title}>Profil Saya</Text>
         </View>
