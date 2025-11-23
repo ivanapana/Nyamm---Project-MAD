@@ -26,7 +26,7 @@ export default function App() {
         <Stack.Screen name="GetStarted" component={GetStarted} />
         <Stack.Screen name="SignIn" component={SignIn} />
         <Stack.Screen name="SignUp" component={SignUp} />
-        <Stack.Screen name="MainApp" component={BottomTabNavigator} />
+        <Stack.Screen name="Main" component={BottomTabNavigator} />
         <Stack.Screen name="Detail" component={Detail} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="KumpulanResep" component={KumpulanResep} />

@@ -1,5 +1,3 @@
-// src/pages/Belanja/index.tsx
-
 import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
@@ -12,8 +10,8 @@ import {
   Alert,
 } from 'react-native';
 
-// 1. Import Firebase
-import {getDatabase, ref, onValue, update, remove} from 'firebase/database';
+// Import Firebase
+import {getDatabase, ref, onValue, update, remove, set} from 'firebase/database';
 import {getAuth} from 'firebase/auth';
 
 import {Text as TextAtom} from '../../components/atoms';
@@ -28,7 +26,7 @@ export default function Belanja() {
   const auth = getAuth();
   const user = auth.currentUser;
 
-  // 2. Ambil Data Realtime
+  // 1. Ambil Data Realtime
   useEffect(() => {
     if (!user) return;
 
@@ -45,7 +43,10 @@ export default function Belanja() {
           return {
             id: key,
             name: itemData.name,
-            // Gabungkan qty dan unit jadi 'amount'
+            // Simpan data mentah (raw) untuk keperluan pemindahan data nanti
+            rawQty: itemData.qty || 0,
+            rawUnit: itemData.unit || '',
+            // Data tampilan UI (string gabungan)
             amount: `${itemData.qty || ''} ${itemData.unit || ''}`.trim(),
             from: itemData.source || 'Manual',
             isChecked: itemData.isChecked || false, // Status checkbox
@@ -64,12 +65,14 @@ export default function Belanja() {
     });
   }, [user]);
 
-  // 3. Update Status Checklist di Firebase
+  // 2. Update Status Checklist di Firebase
   const toggleItem = id => {
     const db = getDatabase();
 
     // Cari status item sekarang
     const currentItem = shoppingItems.find(i => i.id === id);
+    if (!currentItem) return; 
+    
     const newStatus = !currentItem.isChecked;
 
     // Update di Firebase (otomatis UI akan re-render karena listener onValue)
@@ -78,25 +81,48 @@ export default function Belanja() {
     });
   };
 
-  // 4. Handle Pindah ke Kulkas (Hapus dari Belanja)
+  // 3. Handle Pindah ke Kulkas (Salin ke Inventory -> Hapus dari Belanja)
   const handleMoveToKulkas = () => {
     Alert.alert(
       'Pindahkan ke Kulkas',
-      `Apakah Anda yakin sudah membeli ${checkedItems.length} item ini? Item akan dihapus dari daftar belanja.`,
+      `Apakah Anda yakin sudah membeli ${checkedItems.length} item ini? Item akan dipindahkan ke stok Kulkasku.`,
       [
         {text: 'Batal', style: 'cancel'},
         {
           text: 'Ya, Pindahkan',
           onPress: async () => {
             const db = getDatabase();
-            // Hapus item yang dicentang satu per satu
-            const promises = checkedItems.map(id => {
-              return remove(ref(db, `shopping_list/${user.uid}/${id}`));
+            
+            // Filter hanya item yang dicentang
+            const itemsToMove = shoppingItems.filter(i => checkedItems.includes(i.id));
+
+            // Buat array promise untuk memproses setiap item
+            const movePromises = itemsToMove.map(item => {
+              // A. Tulis ke node 'inventory' (Kulkasku)
+              // Kita gunakan ID yang sama agar mudah dilacak, atau biarkan firebase generate ID baru jika mau.
+              // Di sini kita pakai ID yang sama dengan di shopping list.
+              const addToFridgePromise = update(ref(db, `inventory/${user.uid}/${item.id}`), {
+                name: item.name,
+                quantity: item.rawQty, // Gunakan angka asli
+                unit: item.rawUnit,    // Gunakan unit asli
+                addedAt: Date.now(),
+              });
+
+              // B. Hapus dari 'shopping_list'
+              const removeFromListPromise = remove(ref(db, `shopping_list/${user.uid}/${item.id}`));
+
+              // Jalankan keduanya
+              return Promise.all([addToFridgePromise, removeFromListPromise]);
             });
 
-            await Promise.all(promises);
-            // Alert atau Toast sukses
-            // (Opsional: Disini Anda bisa simpan ke node 'kulkas'/'pantry' di masa depan)
+            try {
+              await Promise.all(movePromises);
+              // Alert sukses tidak wajib karena item otomatis hilang dari list (realtime), tapi boleh ditambahkan
+              // setCheckedItems([]); // Tidak perlu manual reset karena data akan hilang dan useEffect akan mereset state
+            } catch (error) {
+              console.error("Gagal memindahkan item:", error);
+              Alert.alert("Error", "Gagal memindahkan beberapa item.");
+            }
           },
         },
       ],
@@ -184,6 +210,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 24,
     paddingBottom: 80,
+    marginTop: 24, // Sedikit jarak dari header
   },
 
   card: {
@@ -210,6 +237,7 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 8,
+    marginBottom: 20,
   },
   actionButtonText: {color: '#fff', fontSize: 16, fontWeight: '700'},
 });
