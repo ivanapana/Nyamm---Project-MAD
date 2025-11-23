@@ -1,9 +1,9 @@
-// App.tsx
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import KumpulanResep from './src/pages/KumpulanResep';
+import FlashMessage from 'react-native-flash-message';
 
+import KumpulanResep from './src/pages/KumpulanResep';
 import GetStarted from './src/pages/GetStarted';
 import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
@@ -11,6 +11,8 @@ import {BottomTabNavigator} from './src/components/organisms/BottomNavbar/Bottom
 import Profile from './src/pages/Profile';
 import Detail from './src/pages/Detail';
 import Rencana from './src/pages/Rencana';
+import './src/config/Firebase';
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -28,6 +30,7 @@ export default function App() {
         <Stack.Screen name="Rencana" component={Rencana} />
         <Stack.Screen name="KumpulanResep" component={KumpulanResep} />
       </Stack.Navigator>
+      <FlashMessage position="top" />
     </NavigationContainer>
   );
 }

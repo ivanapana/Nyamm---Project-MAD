@@ -1,4 +1,3 @@
-// src/pages/SignIn/index.tsx
 import React, {useState} from 'react';
 import {
   StyleSheet,
@@ -9,6 +8,14 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
+import {showMessage} from 'react-native-flash-message';
+
+// Import Firebase
+import {getAuth, createUserWithEmailAndPassword} from 'firebase/auth';
+import {getDatabase, ref, set} from 'firebase/database';
+
+// Sesuaikan path import komponen Anda
+// Pastikan file-file ini ada di folder yang sesuai di project Anda
 import BackButton from '../../components/atoms/BackButtonSign';
 import Icon from '../../components/atoms/Icon';
 import ButtonYellow from '../../components/atoms/ButtonYellow';
@@ -21,6 +28,10 @@ const SignUpScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // State Loading (PENTING: Agar user tidak klik 2x)
+  const [loading, setLoading] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -31,21 +42,97 @@ const SignUpScreen = ({navigation}) => {
   };
 
   const handleSignUp = () => {
-    console.log('Create Account:', {
-      firstName,
-      lastName,
-      email,
-      password,
-      confirmPassword,
-    });
-
-    if (navigation && navigation.navigate) {
-      navigation.navigate('SignIn');
+    // 1. Validasi Input
+    if (password !== confirmPassword) {
+      showMessage({
+        message: 'Password dan Konfirmasi Password tidak sama',
+        type: 'danger',
+      });
+      return;
     }
+
+    if (password.length < 6) {
+      showMessage({
+        message: 'Password minimal 6 karakter',
+        type: 'danger',
+      });
+      return;
+    }
+
+    // Mulai Loading
+    setLoading(true);
+
+    const auth = getAuth();
+    const db = getDatabase();
+
+    // 2. Buat Akun di Authentication
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(userCredential => {
+        const user = userCredential.user;
+
+        // Siapkan Data User
+        const dataUser = {
+          uid: user.uid,
+          firstName: firstName,
+          lastName: lastName,
+          fullName: `${firstName} ${lastName}`,
+          email: email,
+          photo: '',
+        };
+
+        // 3. Simpan ke Realtime Database (Tunggu sampai sukses)
+        set(ref(db, 'users/' + user.uid), dataUser)
+          .then(() => {
+            // --- SUKSES ---
+            setLoading(false);
+
+            showMessage({
+              message: 'Registrasi Berhasil',
+              description: 'Selamat datang di Nyamm!',
+              type: 'success',
+              icon: 'success',
+            });
+            navigation.navigate('SignIn');
+          })
+          .catch(error => {
+            // --- ERROR DATABASE ---
+            setLoading(false);
+            console.log('Error Simpan DB:', error);
+            showMessage({
+              message: 'Gagal menyimpan data profil',
+              description: error.message,
+              type: 'danger',
+            });
+          });
+      })
+      .catch(error => {
+        // --- ERROR AUTHENTICATION ---
+        setLoading(false);
+        const errorMessage = error.message;
+        console.log('Error Auth:', errorMessage);
+
+        // Pesan error yang lebih user friendly
+        let pesan = 'Terjadi kesalahan registrasi';
+        if (errorMessage.includes('email-already-in-use')) {
+          pesan = 'Email sudah terdaftar';
+        } else if (errorMessage.includes('invalid-email')) {
+          pesan = 'Format email salah';
+        }
+
+        showMessage({
+          message: pesan,
+          type: 'danger',
+        });
+      });
   };
 
   const isDisabled =
-    !firstName || !lastName || !email || !password || !confirmPassword;
+    loading ||
+    !firstName ||
+    !lastName ||
+    !email ||
+    !password ||
+    !confirmPassword;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -71,7 +158,7 @@ const SignUpScreen = ({navigation}) => {
           </Text>
 
           <View style={styles.form}>
-            {/* --- Bagian Nama --- */}
+            {/* --- Nama --- */}
             <View style={styles.nameRow}>
               <View style={styles.nameFieldWrapper}>
                 <TextField
@@ -79,7 +166,6 @@ const SignUpScreen = ({navigation}) => {
                   placeholder="Marco"
                   value={firstName}
                   onChangeText={setFirstName}
-                  keyboardType="default"
                 />
               </View>
 
@@ -89,21 +175,20 @@ const SignUpScreen = ({navigation}) => {
                   placeholder="Pieter"
                   value={lastName}
                   onChangeText={setLastName}
-                  keyboardType="default"
                 />
               </View>
             </View>
 
-            {/* --- Kolom Email (Tanpa Ikon) --- */}
+            {/* --- Email --- */}
             <TextField
               label="Email Address"
-              placeholder="name@example.com"
+              placeholder="name@gmail.com"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
             />
 
-            {/* --- Bagian Password --- */}
+            {/* --- Password --- */}
             <TextField
               label="Password"
               placeholder="Password"
@@ -115,14 +200,7 @@ const SignUpScreen = ({navigation}) => {
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => setShowPassword(!showPassword)}>
-                  <Text
-                    style={{
-                      color: '#9AA0A6',
-                      fontSize: 18,
-                      fontWeight: '700',
-                    }}>
-                    {showPassword ? 'X' : 'O'}
-                  </Text>
+                  <Text style={styles.eyeIcon}>{showPassword ? 'X' : 'O'}</Text>
                 </TouchableOpacity>
               }
             />
@@ -137,21 +215,17 @@ const SignUpScreen = ({navigation}) => {
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                  <Text
-                    style={{
-                      color: '#9AA0A6',
-                      fontSize: 18,
-                      fontWeight: '700',
-                    }}>
+                  <Text style={styles.eyeIcon}>
                     {showConfirmPassword ? 'X' : 'O'}
                   </Text>
                 </TouchableOpacity>
               }
             />
 
+            {/* --- Tombol Submit --- */}
             <View style={styles.buttonWrapper}>
               <ButtonYellow
-                label="Create Account"
+                label={loading ? 'Loading...' : 'Create Account'}
                 onPress={handleSignUp}
                 disabled={isDisabled}
               />
@@ -162,11 +236,7 @@ const SignUpScreen = ({navigation}) => {
                 Already have an account?{' '}
                 <Text
                   style={styles.footerLink}
-                  onPress={() =>
-                    navigation && navigation.navigate
-                      ? navigation.navigate('SignIn')
-                      : null
-                  }>
+                  onPress={() => navigation.navigate('SignIn')}>
                   Sign In
                 </Text>
               </Text>
@@ -260,6 +330,11 @@ const styles = StyleSheet.create({
   },
   footerLink: {
     color: '#F59E0B',
+    fontWeight: '700',
+  },
+  eyeIcon: {
+    color: '#9AA0A6',
+    fontSize: 18,
     fontWeight: '700',
   },
 });

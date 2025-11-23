@@ -11,6 +11,7 @@ const firebaseConfig = {
   storageBucket: 'nyamm-afe55.firebasestorage.app',
   messagingSenderId: '49541971386',
   appId: '1:49541971386:web:928f60596c44a53c26f183',
+  databaseURL: 'https://nyamm-afe55-default-rtdb.firebaseio.com/',
 };
 
 // Initialize Firebase
