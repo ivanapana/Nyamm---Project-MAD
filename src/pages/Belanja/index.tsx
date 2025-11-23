@@ -9,9 +9,14 @@ import {
   Text,
   Alert,
 } from 'react-native';
-
-// Import Firebase
-import {getDatabase, ref, onValue, update, remove, set} from 'firebase/database';
+import {
+  getDatabase,
+  ref,
+  onValue,
+  update,
+  remove,
+  set,
+} from 'firebase/database';
 import {getAuth} from 'firebase/auth';
 
 import {Text as TextAtom} from '../../components/atoms';
@@ -19,43 +24,33 @@ import ProgressBar from '../../components/atoms/ProgressBar';
 import ShoppingCard from '../../components/molecules/ShoppingCard';
 
 export default function Belanja() {
-  // State untuk menampung data dari Firebase
   const [shoppingItems, setShoppingItems] = useState([]);
-  const [checkedItems, setCheckedItems] = useState([]); // Array berisi ID yang dicentang
-
+  const [checkedItems, setCheckedItems] = useState([]);
   const auth = getAuth();
   const user = auth.currentUser;
 
-  // 1. Ambil Data Realtime
   useEffect(() => {
     if (!user) return;
 
     const db = getDatabase();
     const shoppingRef = ref(db, `shopping_list/${user.uid}`);
-
-    // Listener
     onValue(shoppingRef, snapshot => {
       const data = snapshot.val();
       if (data) {
-        // Mapping Object Firebase ke Array UI
         const itemsArray = Object.keys(data).map(key => {
           const itemData = data[key];
           return {
             id: key,
             name: itemData.name,
-            // Simpan data mentah (raw) untuk keperluan pemindahan data nanti
             rawQty: itemData.qty || 0,
             rawUnit: itemData.unit || '',
-            // Data tampilan UI (string gabungan)
             amount: `${itemData.qty || ''} ${itemData.unit || ''}`.trim(),
             from: itemData.source || 'Manual',
-            isChecked: itemData.isChecked || false, // Status checkbox
+            isChecked: itemData.isChecked || false,
           };
         });
 
         setShoppingItems(itemsArray);
-
-        // Sinkronisasi state checkedItems lokal dengan database
         const checkedIds = itemsArray.filter(i => i.isChecked).map(i => i.id);
         setCheckedItems(checkedIds);
       } else {
@@ -65,23 +60,18 @@ export default function Belanja() {
     });
   }, [user]);
 
-  // 2. Update Status Checklist di Firebase
   const toggleItem = id => {
     const db = getDatabase();
-
-    // Cari status item sekarang
     const currentItem = shoppingItems.find(i => i.id === id);
-    if (!currentItem) return; 
-    
+    if (!currentItem) return;
+
     const newStatus = !currentItem.isChecked;
 
-    // Update di Firebase (otomatis UI akan re-render karena listener onValue)
     update(ref(db, `shopping_list/${user.uid}/${id}`), {
       isChecked: newStatus,
     });
   };
 
-  // 3. Handle Pindah ke Kulkas (Salin ke Inventory -> Hapus dari Belanja)
   const handleMoveToKulkas = () => {
     Alert.alert(
       'Pindahkan ke Kulkas',
@@ -92,36 +82,32 @@ export default function Belanja() {
           text: 'Ya, Pindahkan',
           onPress: async () => {
             const db = getDatabase();
-            
-            // Filter hanya item yang dicentang
-            const itemsToMove = shoppingItems.filter(i => checkedItems.includes(i.id));
+            const itemsToMove = shoppingItems.filter(i =>
+              checkedItems.includes(i.id),
+            );
 
-            // Buat array promise untuk memproses setiap item
             const movePromises = itemsToMove.map(item => {
-              // A. Tulis ke node 'inventory' (Kulkasku)
-              // Kita gunakan ID yang sama agar mudah dilacak, atau biarkan firebase generate ID baru jika mau.
-              // Di sini kita pakai ID yang sama dengan di shopping list.
-              const addToFridgePromise = update(ref(db, `inventory/${user.uid}/${item.id}`), {
-                name: item.name,
-                quantity: item.rawQty, // Gunakan angka asli
-                unit: item.rawUnit,    // Gunakan unit asli
-                addedAt: Date.now(),
-              });
+              const addToFridgePromise = update(
+                ref(db, `inventory/${user.uid}/${item.id}`),
+                {
+                  name: item.name,
+                  quantity: item.rawQty,
+                  unit: item.rawUnit,
+                  addedAt: Date.now(),
+                },
+              );
+              const removeFromListPromise = remove(
+                ref(db, `shopping_list/${user.uid}/${item.id}`),
+              );
 
-              // B. Hapus dari 'shopping_list'
-              const removeFromListPromise = remove(ref(db, `shopping_list/${user.uid}/${item.id}`));
-
-              // Jalankan keduanya
               return Promise.all([addToFridgePromise, removeFromListPromise]);
             });
 
             try {
               await Promise.all(movePromises);
-              // Alert sukses tidak wajib karena item otomatis hilang dari list (realtime), tapi boleh ditambahkan
-              // setCheckedItems([]); // Tidak perlu manual reset karena data akan hilang dan useEffect akan mereset state
             } catch (error) {
-              console.error("Gagal memindahkan item:", error);
-              Alert.alert("Error", "Gagal memindahkan beberapa item.");
+              console.error('Gagal memindahkan item:', error);
+              Alert.alert('Error', 'Gagal memindahkan beberapa item.');
             }
           },
         },
@@ -158,8 +144,6 @@ export default function Belanja() {
               Total {totalItems} item
             </TextAtom>
           </View>
-
-          {/* Render List dari State Firebase */}
           {shoppingItems.length > 0 ? (
             shoppingItems.map(item => (
               <ShoppingCard
@@ -210,9 +194,8 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 24,
     paddingBottom: 80,
-    marginTop: 24, // Sedikit jarak dari header
+    marginTop: 24,
   },
-
   card: {
     backgroundColor: '#fff',
     borderRadius: 24,

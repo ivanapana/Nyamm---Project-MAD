@@ -10,12 +10,9 @@ import {
 } from 'react-native';
 import {showMessage} from 'react-native-flash-message';
 
-// Import Firebase
 import {getAuth, createUserWithEmailAndPassword} from 'firebase/auth';
 import {getDatabase, ref, set} from 'firebase/database';
 
-// Sesuaikan path import komponen Anda
-// Pastikan file-file ini ada di folder yang sesuai di project Anda
 import BackButton from '../../components/atoms/BackButtonSign';
 import Icon from '../../components/atoms/Icon';
 import ButtonYellow from '../../components/atoms/ButtonYellow';
@@ -29,7 +26,6 @@ const SignUpScreen = ({navigation}) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // State Loading (PENTING: Agar user tidak klik 2x)
   const [loading, setLoading] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -42,7 +38,6 @@ const SignUpScreen = ({navigation}) => {
   };
 
   const handleSignUp = () => {
-    // 1. Validasi Input
     if (password !== confirmPassword) {
       showMessage({
         message: 'Password dan Konfirmasi Password tidak sama',
@@ -59,18 +54,15 @@ const SignUpScreen = ({navigation}) => {
       return;
     }
 
-    // Mulai Loading
     setLoading(true);
 
     const auth = getAuth();
     const db = getDatabase();
 
-    // 2. Buat Akun di Authentication
     createUserWithEmailAndPassword(auth, email, password)
       .then(userCredential => {
         const user = userCredential.user;
 
-        // Siapkan Data User
         const dataUser = {
           uid: user.uid,
           firstName: firstName,
@@ -80,10 +72,8 @@ const SignUpScreen = ({navigation}) => {
           photo: '',
         };
 
-        // 3. Simpan ke Realtime Database (Tunggu sampai sukses)
         set(ref(db, 'users/' + user.uid), dataUser)
           .then(() => {
-            // --- SUKSES ---
             setLoading(false);
 
             showMessage({
@@ -95,7 +85,6 @@ const SignUpScreen = ({navigation}) => {
             navigation.navigate('SignIn');
           })
           .catch(error => {
-            // --- ERROR DATABASE ---
             setLoading(false);
             console.log('Error Simpan DB:', error);
             showMessage({
@@ -106,12 +95,10 @@ const SignUpScreen = ({navigation}) => {
           });
       })
       .catch(error => {
-        // --- ERROR AUTHENTICATION ---
         setLoading(false);
         const errorMessage = error.message;
         console.log('Error Auth:', errorMessage);
 
-        // Pesan error yang lebih user friendly
         let pesan = 'Terjadi kesalahan registrasi';
         if (errorMessage.includes('email-already-in-use')) {
           pesan = 'Email sudah terdaftar';
@@ -154,16 +141,15 @@ const SignUpScreen = ({navigation}) => {
 
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>
-            Join nyamm! and start cooking smarter
+            Gabung dengan Nyamm! dan Mulailah Memasak dengan Lebih Pintar
           </Text>
 
           <View style={styles.form}>
-            {/* --- Nama --- */}
             <View style={styles.nameRow}>
               <View style={styles.nameFieldWrapper}>
                 <TextField
-                  label="First Name"
-                  placeholder="Marco"
+                  label="Nama Depan"
+                  placeholder="Nama Depan"
                   value={firstName}
                   onChangeText={setFirstName}
                 />
@@ -171,24 +157,22 @@ const SignUpScreen = ({navigation}) => {
 
               <View style={styles.nameFieldWrapper}>
                 <TextField
-                  label="Last Name"
-                  placeholder="Pieter"
+                  label="Nama Belakang"
+                  placeholder="Nama Belakang"
                   value={lastName}
                   onChangeText={setLastName}
                 />
               </View>
             </View>
 
-            {/* --- Email --- */}
             <TextField
-              label="Email Address"
-              placeholder="name@gmail.com"
+              label="Alamat Email"
+              placeholder="nama@email.com"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
             />
 
-            {/* --- Password --- */}
             <TextField
               label="Password"
               placeholder="Password"
@@ -205,8 +189,8 @@ const SignUpScreen = ({navigation}) => {
               }
             />
             <TextField
-              label="Confirm Password"
-              placeholder="Confirm Password"
+              label="Konfirmasi Password"
+              placeholder="Konfirmasi Password"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry={!showConfirmPassword}
@@ -222,10 +206,9 @@ const SignUpScreen = ({navigation}) => {
               }
             />
 
-            {/* --- Tombol Submit --- */}
             <View style={styles.buttonWrapper}>
               <ButtonYellow
-                label={loading ? 'Loading...' : 'Create Account'}
+                label={loading ? 'Loading...' : 'Buat Akun'}
                 onPress={handleSignUp}
                 disabled={isDisabled}
               />
@@ -233,7 +216,7 @@ const SignUpScreen = ({navigation}) => {
 
             <View style={styles.footerTextContainer}>
               <Text style={styles.footerText}>
-                Already have an account?{' '}
+                Sudah Punya Akun?{' '}
                 <Text
                   style={styles.footerLink}
                   onPress={() => navigation.navigate('SignIn')}>

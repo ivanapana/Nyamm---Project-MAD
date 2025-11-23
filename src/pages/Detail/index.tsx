@@ -70,7 +70,7 @@ export default function DetailPage() {
         [
           {
             text: 'Lihat Daftar Belanja',
-            onPress: () => navigation.navigate('MainApp', {screen: 'Belanja'}),
+            onPress: () => navigation.navigate('Main', {screen: 'Belanja'}),
           },
           {text: 'Oke', style: 'cancel'},
         ],
