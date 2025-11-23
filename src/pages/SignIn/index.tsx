@@ -7,31 +7,32 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Image,
 } from 'react-native';
+import { useNavigationState } from '@react-navigation/native'; // 1. Tambah Import ini
 import BackButton from '../../components/atoms/BackButtonSign';
 import Icon from '../../components/atoms/Icon';
 import {ButtonYellow} from '../../components/atoms';
 import {TextField} from '../../components/molecules';
 import Card from '../../components/organisms/Card';
 
-// 1. Import Firebase dan Flash Message
 import {getAuth, signInWithEmailAndPassword} from 'firebase/auth';
 import {showMessage} from 'react-native-flash-message';
 
 const SignInScreen = ({navigation}) => {
-  // 2. Ubah username jadi email untuk keperluan Firebase
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+
+  // 2. Ambil index screen saat ini dari state navigasi
+  // Jika index === 0, berarti ini adalah halaman paling awal (root), tidak ada history sebelumnya.
+  const navIndex = useNavigationState(state => state.index);
 
   const handleBack = () => {
     navigation.goBack();
   };
 
-  // 3. Implementasi Logika Sign In Firebase
   const handleSignIn = () => {
-    // Validasi sederhana
     if (!email || !password) {
       showMessage({
         message: 'Email dan Password tidak boleh kosong',
@@ -45,9 +46,7 @@ const SignInScreen = ({navigation}) => {
     signInWithEmailAndPassword(auth, email, password)
       .then(userCredential => {
         const user = userCredential.user;
-        console.log('User signed in:', user);
-
-        // Tampilkan pesan sukses (opsional)
+        
         showMessage({
           message: 'Berhasil Masuk',
           description: 'Selamat datang kembali!',
@@ -65,7 +64,6 @@ const SignInScreen = ({navigation}) => {
         const errorCode = error.code;
         let errorMessage = error.message;
 
-        // Custom error message agar lebih ramah user
         if (errorCode === 'auth/invalid-email') {
           errorMessage = 'Format email salah.';
         } else if (errorCode === 'auth/user-not-found') {
@@ -88,10 +86,18 @@ const SignInScreen = ({navigation}) => {
       <ScrollView
         contentContainerStyle={styles.scrollView}
         showsVerticalScrollIndicator={false}>
-        <View style={styles.headerRow}>
-          <BackButton onPress={handleBack} />
-          <Text style={styles.headerBackText}>Kembali</Text>
-        </View>
+        
+        {/* 3. Gunakan navIndex > 0 sebagai kondisi. 
+            Ini reaktif (langsung update) saat navigasi di-reset. */}
+        {navIndex > 0 ? (
+          <View style={styles.headerRow}>
+            <BackButton onPress={handleBack} />
+            <Text style={styles.headerBackText}>Kembali</Text>
+          </View>
+        ) : (
+          // Spacer agar layout tidak loncat ke atas
+          <View style={{ marginBottom: 16 }} />
+        )}
 
         <Card padding={32} rounded={32} style={styles.card}>
           <View style={styles.logoContainer}>
@@ -106,18 +112,16 @@ const SignInScreen = ({navigation}) => {
           </Text>
 
           <View style={styles.form}>
-            {/* Input Email */}
             <TextField
               label="Email"
               placeholder="Masukkan alamat email"
               value={email}
               onChangeText={setEmail}
-              keyboardType="email-address" // Keyboard khusus email
-              autoCapitalize="none" // Agar tidak otomatis kapital
+              keyboardType="email-address"
+              autoCapitalize="none"
               leftIcon={<Icon name="mail" size={18} color="#9AA0A6" />}
             />
 
-            {/* Input Password */}
             <TextField
               label="Kata sandi"
               placeholder="Masukkan kata sandi"
@@ -129,30 +133,20 @@ const SignInScreen = ({navigation}) => {
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => setShowPassword(!showPassword)}>
-                  <Icon
-                    name={showPassword ? 'eyeOff' : 'eye'}
-                    size={18}
-                    color="#9AA0A6"
+                  <Image
+                    source={{
+                      uri: showPassword
+                        ? 'https://img.icons8.com/material-outlined/24/9AA0A6/invisible.png'
+                        : 'https://img.icons8.com/material-outlined/24/9AA0A6/visible.png',
+                    }}
+                    style={{width: 24, height: 24}}
                   />
                 </TouchableOpacity>
               }
             />
 
+            {/* Opsi Ingat Saya Dihapus */}
             <View style={styles.optionsRow}>
-              <TouchableOpacity
-                style={styles.checkboxContainer}
-                activeOpacity={0.8}
-                onPress={() => setRememberMe(!rememberMe)}>
-                <View
-                  style={[
-                    styles.checkbox,
-                    rememberMe && styles.checkboxChecked,
-                  ]}>
-                  {rememberMe && <Text style={styles.checkboxMark}>✓</Text>}
-                </View>
-                <Text style={styles.checkboxLabel}>Ingat saya</Text>
-              </TouchableOpacity>
-
               <TouchableOpacity activeOpacity={0.7}>
                 <Text style={styles.forgotPassword}>Lupa kata sandi?</Text>
               </TouchableOpacity>
@@ -250,37 +244,10 @@ const styles = StyleSheet.create({
   },
   optionsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end', // Diubah ke flex-end agar Lupa Password ke kanan
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 24,
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  checkbox: {
-    width: 18,
-    height: 18,
-    borderRadius: 5,
-    borderWidth: 1.5,
-    borderColor: '#D1D5DB',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 8,
-  },
-  checkboxChecked: {
-    backgroundColor: '#FDB022',
-    borderColor: '#FDB022',
-  },
-  checkboxMark: {
-    color: '#111827',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  checkboxLabel: {
-    fontSize: 13,
-    color: '#4B5563',
   },
   forgotPassword: {
     fontSize: 13,
