@@ -21,7 +21,8 @@ import {getAuth} from 'firebase/auth';
 
 import {Text as TextAtom} from '../../components/atoms';
 import ProgressBar from '../../components/atoms/ProgressBar';
-import ShoppingCard from '../../components/molecules/ShoppingCard';
+// Ganti ShoppingCard dengan CookingStep agar tampilan sama seperti Detail
+import CookingStep from '../../components/molecules/CookingStep';
 
 export default function Belanja() {
   const [shoppingItems, setShoppingItems] = useState([]);
@@ -144,25 +145,36 @@ export default function Belanja() {
               Total {totalItems} item
             </TextAtom>
           </View>
-          {shoppingItems.length > 0 ? (
-            shoppingItems.map(item => (
-              <ShoppingCard
-                key={item.id}
-                item={item}
-                checked={checkedItems.includes(item.id)}
-                onToggle={() => toggleItem(item.id)}
-              />
-            ))
-          ) : (
-            <View style={{padding: 20, alignItems: 'center'}}>
-              <TextAtom style={{color: '#9CA3AF'}}>
-                Daftar belanja masih kosong.
-              </TextAtom>
-              <TextAtom style={{color: '#9CA3AF', fontSize: 12}}>
-                Yuk cari resep dulu!
-              </TextAtom>
-            </View>
-          )}
+
+          <View style={styles.listContainer}>
+            {shoppingItems.length > 0 ? (
+              shoppingItems.map((item, index) => {
+                const stepData = {
+                  id: item.id,
+                  text: `${item.amount} ${item.name} (${item.from})`,
+                };
+
+                return (
+                  <CookingStep
+                    key={item.id}
+                    step={stepData}
+                    index={index}
+                    completed={checkedItems.includes(item.id)}
+                    onToggle={() => toggleItem(item.id)}
+                  />
+                );
+              })
+            ) : (
+              <View style={{padding: 20, alignItems: 'center'}}>
+                <TextAtom style={{color: '#9CA3AF'}}>
+                  Daftar belanja masih kosong.
+                </TextAtom>
+                <TextAtom style={{color: '#9CA3AF', fontSize: 12}}>
+                  Yuk cari resep dulu!
+                </TextAtom>
+              </View>
+            )}
+          </View>
         </View>
 
         {checkedCount > 0 && (
@@ -207,9 +219,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
   },
-  cardHeader: {padding: 20, paddingBottom: 16, backgroundColor: '#FEFCE8'},
+  cardHeader: {
+    padding: 20,
+    paddingBottom: 10,
+    backgroundColor: '#FEFCE8',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
   cardTitle: {color: '#1F2937', fontSize: 18, fontWeight: '700'},
   cardSubtitle: {color: '#6B7280', marginTop: 4},
+
+  // Container baru untuk list agar rapi
+  listContainer: {
+    paddingVertical: 10,
+  },
+
   actionButton: {
     backgroundColor: '#10B981',
     paddingVertical: 16,
