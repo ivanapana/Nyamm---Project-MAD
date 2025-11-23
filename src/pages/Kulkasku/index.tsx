@@ -14,30 +14,30 @@ import {
 import {getDatabase, ref, onValue, update, remove} from 'firebase/database';
 import {getAuth} from 'firebase/auth';
 
-// Import Popup yang sudah diperbarui
+
 import EditIngredientPopup from '../../components/organisms/EditIngredientPopup';
 
 const Kulkasku = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [currentIngredient, setCurrentIngredient] = useState(null);
   
-  // State untuk data inventory
+ 
   const [inventoryItems, setInventoryItems] = useState([]);
 
   const auth = getAuth();
   const user = auth.currentUser;
 
-  // 1. Ambil Data Realtime dari Firebase
+  
   useEffect(() => {
     if (!user) return;
     const db = getDatabase();
-    // Pastikan path ini sesuai dengan tempat data disimpan
+    
     const inventoryRef = ref(db, `inventory/${user.uid}`);
 
     onValue(inventoryRef, snapshot => {
       const data = snapshot.val();
       if (data) {
-        // Konversi object Firebase ke array untuk ditampilkan di list
+        
         const parsedItems = Object.keys(data).map(key => ({
           id: key,
           ...data[key],
@@ -49,13 +49,13 @@ const Kulkasku = () => {
     });
   }, [user]);
 
-  // Fungsi saat tombol Edit ditekan
+  
   const handleEdit = ingredient => {
     setCurrentIngredient(ingredient);
     setIsPopupVisible(true);
   };
 
-  // Fungsi saat tombol Hapus ditekan
+  
   const handleDelete = (item) => {
     Alert.alert(
       'Hapus Bahan',
@@ -69,7 +69,7 @@ const Kulkasku = () => {
             try {
               const db = getDatabase();
               await remove(ref(db, `inventory/${user.uid}/${item.id}`));
-              // Tidak perlu alert sukses, item akan hilang otomatis dari layar
+             
             } catch (error) {
               Alert.alert('Error', 'Gagal menghapus bahan.');
             }
@@ -79,12 +79,12 @@ const Kulkasku = () => {
     );
   };
 
-  // Fungsi Simpan dari Popup (Menerima data yang sudah fix ada ID-nya)
+ 
   const handleSave = async (updatedIngredient) => {
     try {
       const db = getDatabase();
       
-      // Update data spesifik berdasarkan ID yang dikirim balik oleh Popup
+      
       await update(ref(db, `inventory/${user.uid}/${updatedIngredient.id}`), {
         name: updatedIngredient.name,
         quantity: updatedIngredient.quantity,

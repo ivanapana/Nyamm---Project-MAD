@@ -60,16 +60,10 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     marginBottom: 16,
   },
-  imageContainer: {
-    height: 144,
-    backgroundColor: '#FDE68A',
-    width: '100%',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
-  content: {
-    padding: 16,
-  },
+  imageContainer: { height: 144, backgroundColor: '#FDE68A' },
+  image: { width: '100%', height: '100%' },
+  placeholder: { width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' },
+  iconOuter: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#7C3AED', justifyContent: 'center', alignItems: 'center' },
+  iconInner: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#FBBF24' },
+  content: { padding: 16 },
 });
