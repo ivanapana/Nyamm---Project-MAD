@@ -67,7 +67,7 @@ const KumpulanResep = () => {
           id: recipe.id,
           name: recipe.title,
           emoji: '🍲', 
-          duration: recipe.duration || '20 Min', 
+          duration: recipe.time || recipe.duration || '20 Min', 
         });
 
         navigation.goBack(); 
@@ -93,8 +93,8 @@ const KumpulanResep = () => {
     <RecipePageLayout onSearch={handleSearch} onBack={handleBack}>
       <RecipeList
         recipes={filteredRecipes}
-        onPressItem={handleViewDetail}
-        onAddToMenu={handleAddToMenu}
+        onPressItem={handleViewDetail} 
+        onAddToMenu={handleAddToMenu} 
         loading={loading}
       />
     </RecipePageLayout>
