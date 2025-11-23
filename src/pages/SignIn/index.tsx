@@ -14,8 +14,13 @@ import {ButtonYellow} from '../../components/atoms';
 import {TextField} from '../../components/molecules';
 import Card from '../../components/organisms/Card';
 
+// 1. Import Firebase dan Flash Message
+import {getAuth, signInWithEmailAndPassword} from 'firebase/auth';
+import {showMessage} from 'react-native-flash-message';
+
 const SignInScreen = ({navigation}) => {
-  const [username, setUsername] = useState('');
+  // 2. Ubah username jadi email untuk keperluan Firebase
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -24,11 +29,57 @@ const SignInScreen = ({navigation}) => {
     navigation.goBack();
   };
 
+  // 3. Implementasi Logika Sign In Firebase
   const handleSignIn = () => {
-    console.log('Sign In:', {username, password, rememberMe});
-    if (navigation && navigation.navigate) {
-      navigation.navigate('Main', {screen: 'home'});
+    // Validasi sederhana
+    if (!email || !password) {
+      showMessage({
+        message: 'Email dan Password tidak boleh kosong',
+        type: 'danger',
+      });
+      return;
     }
+
+    const auth = getAuth();
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then(userCredential => {
+        const user = userCredential.user;
+        console.log('User signed in:', user);
+
+        // Tampilkan pesan sukses (opsional)
+        showMessage({
+          message: 'Berhasil Masuk',
+          description: 'Selamat datang kembali!',
+          type: 'success',
+        });
+
+        if (navigation && navigation.navigate) {
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'Main', params: {screen: 'home', uid: user.uid}}],
+          });
+        }
+      })
+      .catch(error => {
+        const errorCode = error.code;
+        let errorMessage = error.message;
+
+        // Custom error message agar lebih ramah user
+        if (errorCode === 'auth/invalid-email') {
+          errorMessage = 'Format email salah.';
+        } else if (errorCode === 'auth/user-not-found') {
+          errorMessage = 'Pengguna tidak ditemukan.';
+        } else if (errorCode === 'auth/wrong-password') {
+          errorMessage = 'Password salah.';
+        }
+
+        showMessage({
+          message: 'Gagal Masuk',
+          description: errorMessage,
+          type: 'danger',
+        });
+      });
   };
 
   return (
@@ -55,18 +106,21 @@ const SignInScreen = ({navigation}) => {
           </Text>
 
           <View style={styles.form}>
+            {/* Input Email */}
             <TextField
-              label="Nama pengguna"
-              placeholder="Nama pengguna"
-              value={username}
-              onChangeText={setUsername}
-              keyboardType="default"
+              label="Email"
+              placeholder="Masukkan alamat email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address" // Keyboard khusus email
+              autoCapitalize="none" // Agar tidak otomatis kapital
               leftIcon={<Icon name="mail" size={18} color="#9AA0A6" />}
             />
 
+            {/* Input Password */}
             <TextField
               label="Kata sandi"
-              placeholder="Kata sandi"
+              placeholder="Masukkan kata sandi"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}

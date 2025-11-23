@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+///src/components/organisms/EditIngredientPopup/index.tsx
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -10,9 +11,11 @@ import {
 
 import SaveButton from '../../atoms/SaveButton';
 
-const EditIngredientPopup = ({ visible, onClose, ingredient, onSave }) => {
+const EditIngredientPopup = ({visible, onClose, ingredient, onSave}) => {
   const [name, setName] = useState(ingredient?.name || '');
-  const [quantity, setQuantity] = useState(ingredient?.quantity?.toString() || '');
+  const [quantity, setQuantity] = useState(
+    ingredient?.quantity?.toString() || '',
+  );
   const [unit, setUnit] = useState(ingredient?.unit || 'gram');
 
   const handleSave = () => {
@@ -43,7 +46,7 @@ const EditIngredientPopup = ({ visible, onClose, ingredient, onSave }) => {
           <View style={styles.header}>
             <Text style={styles.headerText}>Edit Bahan</Text>
             <TouchableOpacity onPress={onClose}>
-              <Text style={{ fontSize: 24, color: 'white' }}>×</Text>
+              <Text style={{fontSize: 24, color: 'white'}}>×</Text>
             </TouchableOpacity>
           </View>
 
@@ -58,7 +61,9 @@ const EditIngredientPopup = ({ visible, onClose, ingredient, onSave }) => {
 
             <Text style={styles.label}>Jumlah</Text>
             <View style={styles.quantityContainer}>
-              <TouchableOpacity style={styles.quantityButton} onPress={decrement}>
+              <TouchableOpacity
+                style={styles.quantityButton}
+                onPress={decrement}>
                 <Text style={styles.quantityButtonText}>−</Text>
               </TouchableOpacity>
               <TextInput
@@ -68,7 +73,9 @@ const EditIngredientPopup = ({ visible, onClose, ingredient, onSave }) => {
                 keyboardType="numeric"
                 textAlign="center"
               />
-              <TouchableOpacity style={styles.quantityButton} onPress={increment}>
+              <TouchableOpacity
+                style={styles.quantityButton}
+                onPress={increment}>
                 <Text style={styles.quantityButtonText}>+</Text>
               </TouchableOpacity>
             </View>

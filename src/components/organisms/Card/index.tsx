@@ -1,14 +1,17 @@
+//src/components/organisms/Card/index.tsx
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import {View, StyleSheet} from 'react-native';
 
-const Card = ({ children, padding = 20, rounded = 18, center = false, style }) => {
+const Card = ({
+  children,
+  padding = 20,
+  rounded = 18,
+  center = false,
+  style,
+}) => {
   return (
     <View
-      style={[
-        styles.card(padding, rounded),
-        center && styles.center,
-        style
-      ]}>
+      style={[styles.card(padding, rounded), center && styles.center, style]}>
       {children}
     </View>
   );

@@ -1,3 +1,4 @@
+//src/components/atoms/MiniBottonYellow/index.tsx
 import React from 'react';
 import {TouchableOpacity, StyleSheet} from 'react-native';
 import Text from '../Text';

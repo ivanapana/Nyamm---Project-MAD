@@ -1,6 +1,6 @@
 // src/pages/Profile/index.tsx
 
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
@@ -9,15 +9,56 @@ import Button from '../../components/atoms/Button';
 import PopUP from '../../components/organisms/PopUP';
 import BackButton from '../../components/atoms/BackButton';
 
+// 1. Import Firebase
+import {getAuth, signOut} from 'firebase/auth';
+import {getDatabase, ref, onValue} from 'firebase/database';
+
 const Profile = () => {
   const navigation = useNavigation();
   const [showPopUp, setShowPopUp] = useState(false);
 
+  // 2. State untuk menampung data user
+  const [profile, setProfile] = useState({
+    fullName: 'Loading...', // Default saat loading
+    email: '',
+    photo: '', // Jika nanti ada fitur upload foto
+  });
+
+  // 3. Ambil data dari Firebase saat halaman dibuka
+  useEffect(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (user) {
+      // Ambil data dari Realtime Database berdasarkan UID user yang sedang login
+      const db = getDatabase();
+      const userRef = ref(db, 'users/' + user.uid);
+
+      onValue(userRef, snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          setProfile(data);
+        }
+      });
+    }
+  }, []);
+
   const handleLogout = async () => {
     try {
+      // 4. Logout dari Firebase juga (PENTING)
+      const auth = getAuth();
+      await signOut(auth);
+
+      // Hapus token lokal
       await AsyncStorage.removeItem('userToken');
+
       setShowPopUp(false);
-      navigation.replace('SignIn');
+
+      // Reset navigasi ke SignIn agar tidak bisa di-back
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'SignIn'}],
+      });
     } catch (error) {
       console.error('Gagal logout:', error);
     }
@@ -37,12 +78,19 @@ const Profile = () => {
       <Card style={styles.profileCard} center>
         <View style={styles.avatarWrapper}>
           <View style={styles.avatarCircle}>
-            <Text style={styles.avatarIcon}>👤</Text>
+            {/* Jika nanti ada foto, bisa diganti Image. Sekarang pakai inisial */}
+            <Text style={styles.avatarIcon}>
+              {profile.fullName
+                ? profile.fullName.charAt(0).toUpperCase()
+                : '👤'}
+            </Text>
           </View>
         </View>
 
-        <Text style={styles.name}>John Doe</Text>
-        <Text style={styles.memberText}>Member sejak 18 Juli 2005</Text>
+        {/* 5. Tampilkan Data Dinamis */}
+        <Text style={styles.name}>{profile.fullName}</Text>
+        <Text style={styles.memberText}>{profile.email}</Text>
+        {/* Atau jika mau tanggal, cek penjelasan di bawah */}
 
         <Button
           color="#ff714a"
@@ -74,18 +122,15 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
     paddingBottom: 110,
   },
-
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-
   title: {
     fontSize: 25,
     fontWeight: '700',
     color: '#fff',
   },
-
   profileCard: {
     marginHorizontal: 12,
     marginTop: -80,
@@ -95,7 +140,6 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 3},
     elevation: 5,
   },
-
   avatarWrapper: {
     alignItems: 'center',
     marginBottom: 10,
@@ -111,15 +155,20 @@ const styles = StyleSheet.create({
   avatarIcon: {
     fontSize: 28,
     color: '#fff',
+    fontWeight: 'bold',
   },
   name: {
     fontSize: 20,
     fontWeight: '700',
     color: '#000',
+    marginTop: 10,
+    textAlign: 'center',
   },
   memberText: {
     fontSize: 13,
     color: '#777',
     marginBottom: 15,
+    marginTop: 4,
+    textAlign: 'center',
   },
 });

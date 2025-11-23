@@ -1,3 +1,4 @@
+//src/Templates/RecipePageLayout.tsx
 import React from 'react';
 import {View, StyleSheet, SafeAreaView} from 'react-native';
 import BackButton from '../components/atoms/BackButton';
@@ -10,7 +11,7 @@ const RecipePageLayout = ({onSearch, onBack, children}) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <BackButton 
+          <BackButton
             onPress={onBack}
             size={24}
             color="#FFFFFF"
@@ -21,10 +22,10 @@ const RecipePageLayout = ({onSearch, onBack, children}) => {
             Kumpulan Resep
           </Text>
         </View>
-        
+
         <Spacing size="md" />
-        
-        <SearchBar 
+
+        <SearchBar
           placeholder="Cari resep, bahan, kategori..."
           onSearch={onSearch}
         />
@@ -32,9 +33,7 @@ const RecipePageLayout = ({onSearch, onBack, children}) => {
 
       <Spacing size="lg" />
 
-      <View style={styles.content}>
-        {children}
-      </View>
+      <View style={styles.content}>{children}</View>
     </SafeAreaView>
   );
 };

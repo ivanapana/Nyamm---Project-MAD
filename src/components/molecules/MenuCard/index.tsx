@@ -1,3 +1,4 @@
+//src/components/molecules/MenuCard/index.tsx
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import TextAtom from '../../atoms/Text';

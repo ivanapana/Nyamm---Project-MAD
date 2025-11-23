@@ -1,3 +1,4 @@
+//src/components/molecules/IngredientItem/index.tsx
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 
