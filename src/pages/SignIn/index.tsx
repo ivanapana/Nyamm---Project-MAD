@@ -14,12 +14,10 @@ import {ButtonYellow} from '../../components/atoms';
 import {TextField} from '../../components/molecules';
 import Card from '../../components/organisms/Card';
 
-// 1. Import Firebase dan Flash Message
 import {getAuth, signInWithEmailAndPassword} from 'firebase/auth';
 import {showMessage} from 'react-native-flash-message';
 
 const SignInScreen = ({navigation}) => {
-  // 2. Ubah username jadi email untuk keperluan Firebase
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -29,9 +27,7 @@ const SignInScreen = ({navigation}) => {
     navigation.goBack();
   };
 
-  // 3. Implementasi Logika Sign In Firebase
   const handleSignIn = () => {
-    // Validasi sederhana
     if (!email || !password) {
       showMessage({
         message: 'Email dan Password tidak boleh kosong',
@@ -47,7 +43,6 @@ const SignInScreen = ({navigation}) => {
         const user = userCredential.user;
         console.log('User signed in:', user);
 
-        // Tampilkan pesan sukses (opsional)
         showMessage({
           message: 'Berhasil Masuk',
           description: 'Selamat datang kembali!',
@@ -57,7 +52,7 @@ const SignInScreen = ({navigation}) => {
         if (navigation && navigation.navigate) {
           navigation.reset({
             index: 0,
-            routes: [{name: 'Main', params: {screen: 'home', uid: user.uid}}],
+            routes: [{name: 'MainApp', params: {screen: 'home', uid: user.uid}}],
           });
         }
       })
@@ -65,7 +60,6 @@ const SignInScreen = ({navigation}) => {
         const errorCode = error.code;
         let errorMessage = error.message;
 
-        // Custom error message agar lebih ramah user
         if (errorCode === 'auth/invalid-email') {
           errorMessage = 'Format email salah.';
         } else if (errorCode === 'auth/user-not-found') {
@@ -106,18 +100,16 @@ const SignInScreen = ({navigation}) => {
           </Text>
 
           <View style={styles.form}>
-            {/* Input Email */}
             <TextField
               label="Email"
               placeholder="Masukkan alamat email"
               value={email}
               onChangeText={setEmail}
-              keyboardType="email-address" // Keyboard khusus email
-              autoCapitalize="none" // Agar tidak otomatis kapital
+              keyboardType="email-address"
+              autoCapitalize="none"
               leftIcon={<Icon name="mail" size={18} color="#9AA0A6" />}
             />
 
-            {/* Input Password */}
             <TextField
               label="Kata sandi"
               placeholder="Masukkan kata sandi"
