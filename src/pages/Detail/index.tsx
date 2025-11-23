@@ -1,5 +1,3 @@
-// src/pages/Detail/index.js
-
 import React, {useState} from 'react';
 import {View, ScrollView, StyleSheet, Alert} from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
@@ -11,21 +9,17 @@ import TabSelector from '../../components/molecules/TabSelector';
 import IngredientItem from '../../components/molecules/IngredientItem';
 import CookingStep from '../../components/molecules/CookingStep';
 
-// 💡 Data default jika tidak ada params
 const DEFAULT_RECIPE = {
   name: 'Nasi Goreng Spesial',
   description: 'Nasi goreng klasik Indonesia dengan bumbu spesial...',
   time: '20 min',
   servings: '2 porsi',
   ingredients: [
-    {id: 0, item: 'Nasi putih dingin'},
-    {id: 1, item: 'Telur ayam'},
-    {id: 2, item: 'Bawang putih'},
-    {id: 3, item: 'Bawang merah'},
-    {id: 4, item: 'Cabai rawit'},
-    {id: 5, item: 'Kecap manis'},
-    {id: 6, item: 'Minyak goreng'},
-    {id: 7, item: 'Garam'},
+    {id: 0, name: 'Nasi putih dingin', qty: '2', unit: 'piring'},
+    {id: 1, name: 'Telur ayam', qty: '1', unit: 'butir'},
+    {id: 2, name: 'Bawang putih', qty: '3', unit: 'siung'},
+    {id: 3, name: 'Kecap manis', qty: '2', unit: 'sdm'},
+    {id: 4, name: 'Minyak goreng', qty: '1', unit: 'sdm'},
   ],
   steps: [
     {
@@ -38,9 +32,7 @@ const DEFAULT_RECIPE = {
     },
     {id: 2, text: 'Masukkan telur, orak-arik hingga setengah matang.'},
     {id: 3, text: 'Tambahkan nasi putih, aduk rata.'},
-    {id: 4, text: 'Tuang kecap manis, garam, dan merica. Aduk hingga merata.'},
-    {id: 5, text: 'Masukkan daun bawang, aduk sebentar.'},
-    {id: 6, text: 'Koreksi rasa, angkat dan sajikan.'},
+    {id: 4, text: 'Koreksi rasa, angkat dan sajikan.'},
   ],
 };
 
@@ -55,19 +47,17 @@ export default function DetailPage() {
     description,
     time,
     servings,
-    ingredients = DEFAULT_RECIPE.ingredients,
-    steps = DEFAULT_RECIPE.steps,
+    ingredients = [],
+    steps = [],
   } = recipeData;
 
   const [activeTab, setActiveTab] = useState('bahan');
   const [completedSteps, setCompletedSteps] = useState([]);
-
   const toggleStep = id => {
     setCompletedSteps(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
     );
   };
-
   const addRecipeToShoppingList = () => {
     Alert.alert(
       'Berhasil!',
@@ -82,6 +72,7 @@ export default function DetailPage() {
 
   return (
     <View style={styles.container}>
+      {/* --- HEADER --- */}
       <View style={styles.header}>
         <BackButton onPress={goBack} size={24} color="#000" bgColor="#FFC727" />
         <View style={styles.headerContent}>
@@ -90,14 +81,32 @@ export default function DetailPage() {
         </View>
       </View>
 
+      {/* --- CONTENT --- */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <TabSelector activeTab={activeTab} onTabChange={setActiveTab} />
 
         {activeTab === 'bahan' ? (
           <>
-            {ingredients.map(ing => (
-              <IngredientItem key={ing.id} ingredient={ing} />
-            ))}
+            {ingredients.map((ing, index) => {
+              let displayText = ing.item || '';
+              if (ing.name) {
+                displayText = `${ing.qty || ''} ${ing.unit || ''} ${
+                  ing.name
+                }`.trim();
+              }
+              const modifiedIngredient = {
+                ...ing,
+                item: displayText,
+              };
+
+              return (
+                <IngredientItem
+                  key={ing.id || index}
+                  ingredient={modifiedIngredient}
+                />
+              );
+            })}
+
             <ButtonYellow
               label="Tambah Semua ke Daftar Belanja"
               onPress={addRecipeToShoppingList}
@@ -107,7 +116,7 @@ export default function DetailPage() {
           <>
             {steps.map((step, index) => (
               <CookingStep
-                key={step.id}
+                key={step.id || index}
                 step={step}
                 index={index}
                 completed={completedSteps.includes(step.id)}
