@@ -25,20 +25,14 @@ const RecipeCard = ({recipe, onViewDetail, onAddToMenu}) => {
             style={styles.image}
             resizeMode="cover"
           />
-        ) : (
-          <View style={styles.placeholder}>
-            <View style={styles.iconOuter}>
-              <View style={styles.iconInner} />
-            </View>
-          </View>
-        )}
+        ) : null}
       </View>
 
       <View style={styles.content}>
         <RecipeInfo
           title={recipe.title}
           description={recipe.description}
-          cookTime={recipe.cookTime}
+          cookTime={recipe.cookTime || recipe.time || recipe.duration} 
         />
 
         <Spacing size="md" />

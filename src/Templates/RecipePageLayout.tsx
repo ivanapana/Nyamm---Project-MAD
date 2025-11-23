@@ -1,4 +1,3 @@
-//src/Templates/RecipePageLayout.tsx
 import React from 'react';
 import {View, StyleSheet, SafeAreaView} from 'react-native';
 import BackButton from '../components/atoms/BackButton';
@@ -27,8 +26,9 @@ const RecipePageLayout = ({onSearch, onBack, children}) => {
 
         <SearchBar
           placeholder="Cari resep, bahan, kategori..."
-          onSearch={onSearch}
+          onChangeText={onSearch} 
         />
+        
       </View>
 
       <Spacing size="lg" />
@@ -63,6 +63,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#FFFFFF',
     flex: 1,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
   content: {
     flex: 1,
