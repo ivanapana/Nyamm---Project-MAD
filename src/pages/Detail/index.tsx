@@ -1,8 +1,9 @@
 // src/pages/Detail/index.js
-
 import React, {useState} from 'react';
 import {View, ScrollView, StyleSheet, Alert} from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
+import {getDatabase, ref, push} from 'firebase/database';
+import {getAuth} from 'firebase/auth';
 import BackButton from '../../components/atoms/BackButton';
 import ButtonYellow from '../../components/atoms/ButtonYellow';
 import RecipeHeader from '../../components/molecules/RecipeHeader';
@@ -11,43 +12,18 @@ import TabSelector from '../../components/molecules/TabSelector';
 import IngredientItem from '../../components/molecules/IngredientItem';
 import CookingStep from '../../components/molecules/CookingStep';
 
-// 💡 Data default jika tidak ada params
 const DEFAULT_RECIPE = {
   name: 'Nasi Goreng Spesial',
-  description: 'Nasi goreng klasik Indonesia dengan bumbu spesial...',
+  description: 'Nasi goreng klasik Indonesia...',
   time: '20 min',
   servings: '2 porsi',
-  ingredients: [
-    {id: 0, item: 'Nasi putih dingin'},
-    {id: 1, item: 'Telur ayam'},
-    {id: 2, item: 'Bawang putih'},
-    {id: 3, item: 'Bawang merah'},
-    {id: 4, item: 'Cabai rawit'},
-    {id: 5, item: 'Kecap manis'},
-    {id: 6, item: 'Minyak goreng'},
-    {id: 7, item: 'Garam'},
-  ],
-  steps: [
-    {
-      id: 0,
-      text: 'Haluskan bawang putih, bawang merah, dan cabai rawit. Sisihkan.',
-    },
-    {
-      id: 1,
-      text: 'Panaskan minyak dalam wajan, tumis bumbu halus hingga harum.',
-    },
-    {id: 2, text: 'Masukkan telur, orak-arik hingga setengah matang.'},
-    {id: 3, text: 'Tambahkan nasi putih, aduk rata.'},
-    {id: 4, text: 'Tuang kecap manis, garam, dan merica. Aduk hingga merata.'},
-    {id: 5, text: 'Masukkan daun bawang, aduk sebentar.'},
-    {id: 6, text: 'Koreksi rasa, angkat dan sajikan.'},
-  ],
+  ingredients: [],
+  steps: [],
 };
 
 export default function DetailPage() {
   const route = useRoute();
   const navigation = useNavigation();
-
   const recipeData = route.params?.recipe || DEFAULT_RECIPE;
 
   const {
@@ -55,25 +31,60 @@ export default function DetailPage() {
     description,
     time,
     servings,
-    ingredients = DEFAULT_RECIPE.ingredients,
-    steps = DEFAULT_RECIPE.steps,
+    ingredients = [],
+    steps = [],
   } = recipeData;
 
   const [activeTab, setActiveTab] = useState('bahan');
   const [completedSteps, setCompletedSteps] = useState([]);
 
+  const addRecipeToShoppingList = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      Alert.alert('Error', 'Anda harus login terlebih dahulu');
+      return;
+    }
+
+    const db = getDatabase();
+    const shoppingListRef = ref(db, `shopping_list/${user.uid}`);
+
+    try {
+      const promises = ingredients.map(ing => {
+        return push(shoppingListRef, {
+          name: ing.name,
+          qty: ing.qty || '',
+          unit: ing.unit || '',
+          source: name,
+          isChecked: false,
+          createdAt: Date.now(),
+        });
+      });
+
+      await Promise.all(promises);
+
+      Alert.alert(
+        'Sukses!',
+        `${ingredients.length} bahan telah ditambahkan ke Daftar Belanja.`,
+        [
+          {
+            text: 'Lihat Daftar Belanja',
+            onPress: () => navigation.navigate('Main', {screen: 'Belanja'}),
+          },
+          {text: 'Oke', style: 'cancel'},
+        ],
+      );
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Gagal', 'Terjadi kesalahan saat menyimpan data.');
+    }
+  };
+
   const toggleStep = id => {
     setCompletedSteps(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
     );
-  };
-
-  const addRecipeToShoppingList = () => {
-    Alert.alert(
-      'Berhasil!',
-      'Bahan resep telah ditambahkan ke daftar belanja.',
-    );
-    navigation.navigate('Belanja');
   };
 
   const goBack = () => {
@@ -95,9 +106,26 @@ export default function DetailPage() {
 
         {activeTab === 'bahan' ? (
           <>
-            {ingredients.map(ing => (
-              <IngredientItem key={ing.id} ingredient={ing} />
-            ))}
+            {ingredients.map((ing, index) => {
+              let displayText = ing.item || '';
+              if (ing.name) {
+                displayText = `${ing.qty || ''} ${ing.unit || ''} ${
+                  ing.name
+                }`.trim();
+              }
+              const modifiedIngredient = {
+                ...ing,
+                item: displayText,
+              };
+
+              return (
+                <IngredientItem
+                  key={ing.id || index}
+                  ingredient={modifiedIngredient}
+                />
+              );
+            })}
+
             <ButtonYellow
               label="Tambah Semua ke Daftar Belanja"
               onPress={addRecipeToShoppingList}
@@ -107,7 +135,7 @@ export default function DetailPage() {
           <>
             {steps.map((step, index) => (
               <CookingStep
-                key={step.id}
+                key={step.id || index}
                 step={step}
                 index={index}
                 completed={completedSteps.includes(step.id)}

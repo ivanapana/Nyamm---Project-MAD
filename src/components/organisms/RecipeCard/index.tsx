@@ -1,13 +1,15 @@
-// src/components/organisms/RecipeCard/index.tsx
 import React from 'react';
-import {View, StyleSheet, Alert, Image} from 'react-native';
+import {View, StyleSheet, Image} from 'react-native';
 import RecipeInfo from '../../molecules/RecipeInfo';
 import RecipeActions from '../../molecules/RecipeAction';
 import Spacing from '../../atoms/Spacing';
 
-const RecipeCard = ({recipe, onViewDetail}) => {
-  const handleAddToMenu = () => {
-    Alert.alert('Berhasil', `${recipe.title} ditambahkan ke menu`);
+const RecipeCard = ({recipe, onViewDetail, onAddToMenu}) => {
+  
+  const handleAddToMenuPress = () => {
+    if (onAddToMenu) {
+      onAddToMenu(recipe);
+    }
   };
 
   const handleDetail = () => {
@@ -23,26 +25,20 @@ const RecipeCard = ({recipe, onViewDetail}) => {
             style={styles.image}
             resizeMode="cover"
           />
-        ) : (
-          <View style={styles.placeholder}>
-            <View style={styles.iconOuter}>
-              <View style={styles.iconInner} />
-            </View>
-          </View>
-        )}
+        ) : null}
       </View>
 
       <View style={styles.content}>
         <RecipeInfo
           title={recipe.title}
           description={recipe.description}
-          cookTime={recipe.cookTime}
+          cookTime={recipe.cookTime || recipe.time || recipe.duration} 
         />
 
         <Spacing size="md" />
 
         <RecipeActions
-          onAddToMenu={handleAddToMenu}
+          onAddToMenu={handleAddToMenuPress} 
           onViewDetail={handleDetail}
         />
       </View>
@@ -64,35 +60,10 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     marginBottom: 16,
   },
-  imageContainer: {
-    height: 144,
-    backgroundColor: '#FDE68A',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
-  placeholder: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconOuter: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#7C3AED',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconInner: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FBBF24',
-  },
-  content: {
-    padding: 16,
-  },
+  imageContainer: { height: 144, backgroundColor: '#FDE68A' },
+  image: { width: '100%', height: '100%' },
+  placeholder: { width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' },
+  iconOuter: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#7C3AED', justifyContent: 'center', alignItems: 'center' },
+  iconInner: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#FBBF24' },
+  content: { padding: 16 },
 });

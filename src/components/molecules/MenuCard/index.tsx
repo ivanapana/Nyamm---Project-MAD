@@ -1,7 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import TextAtom from '../../atoms/Text';
-import Icon from '../../atoms/Icon';
 
 const MenuCard = ({time, emoji, meal, duration}) => {
   return (
@@ -11,12 +10,15 @@ const MenuCard = ({time, emoji, meal, duration}) => {
         <TextAtom type="caption" style={{color: '#D97706', fontWeight: '600'}}>
           {time}
         </TextAtom>
+
         <TextAtom type="subtitle" style={styles.meal}>
           {meal}
         </TextAtom>
+
         <View style={styles.meta}>
-          <Icon name="clock" size={14} color="#6B7280" />
-          <TextAtom type="caption" style={{marginLeft: 4, color: '#6B7280'}}>
+          <Text style={{fontSize: 14, marginRight: 4, color: '#000'}}>🕐</Text>
+
+          <TextAtom type="caption" style={{color: '#6B7280'}}>
             {duration}
           </TextAtom>
         </View>
@@ -31,7 +33,6 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     backgroundColor: '#FFF9C4',
-    borderRadius: 20,
     padding: 16,
     borderWidth: 2,
     borderColor: '#FED7AA',

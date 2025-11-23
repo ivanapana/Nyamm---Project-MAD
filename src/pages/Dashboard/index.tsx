@@ -1,4 +1,6 @@
-import React from 'react';
+// src/pages/Dashboard/index.tsx
+
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -7,47 +9,88 @@ import {
   StatusBar,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {getDatabase, ref, onValue} from 'firebase/database';
+import {getAuth} from 'firebase/auth';
 import Text from '../../components/atoms/Text';
-import SearchBar from '../../components/molecules/SearchBar';
 import MenuCard from '../../components/molecules/MenuCard';
 import QuickActionCard from '../../components/molecules/QuickActionCard';
 import Icon from '../../components/atoms/Icon';
-import {useNavigation} from '@react-navigation/native';
-
-const DASHBOARD_MENU = [
-  {
-    time: 'Sarapan',
-    emoji: '🌅',
-    meal: 'Nasi Goreng Spesial',
-    duration: '20 min',
-  },
-  {
-    time: 'Makan Siang',
-    emoji: '☀️',
-    meal: 'Ayam Geprek + Lalapan',
-    duration: '30 min',
-  },
-  {time: 'Makan Malam', emoji: '🌙', meal: 'Sop Iga Sapi', duration: '45 min'},
-];
 
 export default function Dashboard() {
+  const navigation = useNavigation();
   const today = new Date();
   const options = {weekday: 'long', day: 'numeric', month: 'short'};
   const formattedDate = today.toLocaleDateString('id-ID', options);
-  const navigation = useNavigation();
+  const [menuHariIni, setMenuHariIni] = useState([]);
+  const [shoppingCount, setShoppingCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  useEffect(() => {
+    if (!user) return;
+
+    const db = getDatabase();
+    const shoppingRef = ref(db, `shopping_list/${user.uid}`);
+    const unsubscribeShop = onValue(shoppingRef, snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const count = Object.values(data).filter(
+          item => !item.isChecked,
+        ).length;
+        setShoppingCount(count);
+      } else {
+        setShoppingCount(0);
+      }
+    });
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const todayKey = `${year}-${month}-${day}`;
+
+    const mealRef = ref(db, `users/${user.uid}/mealPlans/${todayKey}`);
+
+    const unsubscribeMeal = onValue(mealRef, snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const formattedMenu = Object.keys(data).map(key => ({
+          time: key,
+          meal: data[key].name,
+          duration: data[key].duration,
+          emoji: data[key].emoji || '🍳',
+        }));
+
+        const order = {Sarapan: 1, 'Makan Siang': 2, 'Makan Malam': 3};
+        formattedMenu.sort(
+          (a, b) => (order[a.time] || 4) - (order[b.time] || 4),
+        );
+
+        setMenuHariIni(formattedMenu);
+      } else {
+        setMenuHariIni([]);
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribeShop();
+      unsubscribeMeal();
+    };
+  }, [user]);
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FBBF24" />
-
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Image
             source={require('../../assets/images/logoo.png')}
             style={{
-              width: 120,
-              height: 44,
+              width: 130,
+              height: 70,
               resizeMode: 'contain',
             }}
           />
@@ -55,10 +98,9 @@ export default function Dashboard() {
           <TouchableOpacity
             style={styles.profileButton}
             onPress={() => navigation.navigate('Profile')}>
-            <Icon name="user" size={24} color="#000" />
+            <Icon name="user" size={48} color="#000" />
           </TouchableOpacity>
         </View>
-        <SearchBar placeholder="Cari resep favorit..." />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -76,11 +118,29 @@ export default function Dashboard() {
               {formattedDate}
             </Text>
           </View>
-          {DASHBOARD_MENU.map((item, i) => (
-            <MenuCard key={i} {...item} />
-          ))}
+          {loading ? (
+            <ActivityIndicator size="small" color="#FBBF24" />
+          ) : menuHariIni.length > 0 ? (
+            menuHariIni.map((item, i) => (
+              <MenuCard
+                key={i}
+                time={item.time}
+                meal={item.meal}
+                duration={item.duration}
+                emoji={item.emoji}
+              />
+            ))
+          ) : (
+            <View style={styles.emptyState}>
+              <Text type="caption" style={{color: '#9CA3AF'}}>
+                Belum ada menu direncakan hari ini.
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Rencana')}>
+                <Text style={styles.createLink}>+ Buat Rencana</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
-
         <View style={styles.actions}>
           <QuickActionCard
             title="Perencana Menu"
@@ -92,7 +152,7 @@ export default function Dashboard() {
 
           <QuickActionCard
             title="Daftar Belanja"
-            subtitle="12 item menunggu"
+            subtitle={`${shoppingCount} item menunggu`}
             icon="cart"
             variant="secondary"
             onPress={() => navigation.navigate('Belanja')}
@@ -109,7 +169,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FBBF24',
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 32,
+    paddingBottom: 20,
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
     zIndex: 10,
@@ -118,16 +178,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
   },
   profileButton: {padding: 8},
-  content: {paddingHorizontal: 20, paddingBottom: 80},
+  content: {
+    paddingHorizontal: 20,
+    paddingBottom: 80,
+    marginTop: 20,
+  },
   section: {
     backgroundColor: '#fff',
     borderRadius: 24,
     padding: 20,
     marginBottom: 24,
     elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -139,4 +206,19 @@ const styles = StyleSheet.create({
   sectionTitle: {marginLeft: 8, color: '#1F2937'},
   date: {color: '#6B7280'},
   actions: {flexDirection: 'row', gap: 16},
+
+  emptyState: {
+    paddingVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 16,
+  },
+  createLink: {
+    color: '#FBBF24',
+    fontWeight: 'bold',
+    marginTop: 8,
+  },
 });

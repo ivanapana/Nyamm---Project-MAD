@@ -10,7 +10,7 @@ const RecipePageLayout = ({onSearch, onBack, children}) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <BackButton 
+          <BackButton
             onPress={onBack}
             size={24}
             color="#FFFFFF"
@@ -21,20 +21,19 @@ const RecipePageLayout = ({onSearch, onBack, children}) => {
             Kumpulan Resep
           </Text>
         </View>
-        
+
         <Spacing size="md" />
-        
-        <SearchBar 
+
+        <SearchBar
           placeholder="Cari resep, bahan, kategori..."
-          onSearch={onSearch}
+          onChangeText={onSearch} 
         />
+        
       </View>
 
       <Spacing size="lg" />
 
-      <View style={styles.content}>
-        {children}
-      </View>
+      <View style={styles.content}>{children}</View>
     </SafeAreaView>
   );
 };
@@ -64,6 +63,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#FFFFFF',
     flex: 1,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
   content: {
     flex: 1,

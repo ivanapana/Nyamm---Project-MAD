@@ -1,174 +1,251 @@
-import React, {useState} from 'react';
+// src/pages/Rencana/index.tsx
+
+import React, {useState, useEffect} from 'react';
 import {
   View,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {getDatabase, ref, onValue, remove} from 'firebase/database';
+import {getAuth} from 'firebase/auth';
+
 import Text from '../../components/atoms/Text';
 import Card from '../../components/organisms/Card';
 import MiniButtonYellow from '../../components/atoms/MiniBottonYellow';
 
-const Rencana = ({navigation}) => {
-  const [selectedDay, setSelectedDay] = useState(6);
-
-  const days = [
-    {number: 6, label: 'Sen'},
-    {number: 7, label: 'Sel'},
-    {number: 8, label: 'Rab'},
-    {number: 9, label: 'Kam'},
-    {number: 10, label: 'Jum'},
-    {number: 11, label: 'Sab'},
-    {number: 12, label: 'Min'},
+const Rencana = () => {
+  const navigation = useNavigation();
+  const [weekDates, setWeekDates] = useState([]);
+  const [selectedDateKey, setSelectedDateKey] = useState('');
+  const [dailyMeals, setDailyMeals] = useState({});
+  const [loading, setLoading] = useState(false);
+  const categories = [
+    {id: 'Sarapan', label: 'Sarapan', time: '07:00', emoji: '🌅'},
+    {id: 'Makan Siang', label: 'Makan Siang', time: '12:00', emoji: '🥘'},
+    {id: 'Makan Malam', label: 'Makan Malam', time: '18:00', emoji: '🌙'},
   ];
 
-  const meals = [
-    {
-      id: 1,
-      category: 'Sarapan',
-      time: '07:00',
-      emoji: '🌅',
-      items: [
-        {
-          name: 'Nasi Goreng Spesial',
-          duration: '20 min',
-          emoji: '🍳',
-        },
-      ],
-    },
-    {
-      id: 2,
-      category: 'Makan Siang',
-      time: '12:00',
-      emoji: '🥘',
-      items: [
-        {
-          name: 'Ayam Geprek + Lalapan',
-          duration: '30 min',
-          emoji: '🍗',
-        },
-      ],
-    },
-    {
-      id: 3,
-      category: 'Makan Malam',
-      time: '18:00',
-      emoji: '🌙',
-      items: [],
-    },
-  ];
+  useEffect(() => {
+    const daysArray = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const dateKey = `${year}-${month}-${day}`;
 
-  // Fungsi navigasi ke Kumpulan Resep
-  const goToKumpulanResep = () => {
-    navigation.navigate('KumpulanResep');
+      const dayName = d.toLocaleDateString('id-ID', {weekday: 'short'});
+      const dayNumber = d.getDate();
+      const monthName = d.toLocaleDateString('id-ID', {month: 'long'});
+      const fullYear = d.getFullYear();
+
+      daysArray.push({
+        dateKey,
+        dayName,
+        dayNumber,
+        monthName,
+        fullYear,
+      });
+    }
+
+    setWeekDates(daysArray);
+
+    if (!selectedDateKey && daysArray.length > 0) {
+      setSelectedDateKey(daysArray[0].dateKey);
+    }
+  }, []);
+  useEffect(() => {
+    if (!selectedDateKey) return;
+
+    setLoading(true);
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (user) {
+      const db = getDatabase();
+      const mealsRef = ref(
+        db,
+        `users/${user.uid}/mealPlans/${selectedDateKey}`,
+      );
+
+      const unsubscribe = onValue(mealsRef, snapshot => {
+        const data = snapshot.val();
+        setDailyMeals(data || {});
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
+    } else {
+      setLoading(false);
+    }
+  }, [selectedDateKey]);
+
+  const currentSelectedDayObj =
+    weekDates.find(d => d.dateKey === selectedDateKey) || {};
+
+  const goToSelection = categoryLabel => {
+    navigation.navigate('KumpulanResep', {
+      targetDate: selectedDateKey,
+      targetCategory: categoryLabel,
+    });
+  };
+
+  const handleRemoveMeal = categoryLabel => {
+    Alert.alert('Hapus Menu', 'Yakin ingin menghapus menu ini?', [
+      {text: 'Batal', style: 'cancel'},
+      {
+        text: 'Hapus',
+        style: 'destructive',
+        onPress: async () => {
+          const auth = getAuth();
+          const user = auth.currentUser;
+          if (user) {
+            try {
+              const db = getDatabase();
+              const itemRef = ref(
+                db,
+                `users/${user.uid}/mealPlans/${selectedDateKey}/${categoryLabel}`,
+              );
+              await remove(itemRef);
+            } catch (err) {
+              console.log(err);
+              Alert.alert('Error', 'Gagal menghapus menu');
+            }
+          }
+        },
+      },
+    ]);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}></TouchableOpacity>
         <View style={styles.headerTextContainer}>
           <Text style={styles.headerTitle}>Perencana Menu</Text>
-          <Text style={styles.headerSubtitle}>Oktober 2025</Text>
+          <Text style={styles.headerSubtitle}>
+            {currentSelectedDayObj.monthName || ''}{' '}
+            {currentSelectedDayObj.fullYear || ''}
+          </Text>
         </View>
-        <View style={styles.headerSpacer} />
       </View>
-
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}>
-        {/* Day Selector */}
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.daySelectorContainer}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.dayScrollContent}>
-            {days.map(day => (
-              <TouchableOpacity
-                key={day.number}
-                onPress={() => setSelectedDay(day.number)}
-                style={[
-                  styles.dayButton,
-                  selectedDay === day.number && styles.dayButtonActive,
-                ]}>
-                <Text
+            {weekDates.map(day => {
+              const isActive = selectedDateKey === day.dateKey;
+              return (
+                <TouchableOpacity
+                  key={day.dateKey}
+                  onPress={() => setSelectedDateKey(day.dateKey)}
                   style={[
-                    styles.dayLabel,
-                    selectedDay === day.number && styles.dayLabelActive,
+                    styles.dayButton,
+                    isActive && styles.dayButtonActive,
                   ]}>
-                  {day.label}
-                </Text>
-                <Text
-                  style={[
-                    styles.dayNumber,
-                    selectedDay === day.number && styles.dayNumberActive,
-                  ]}>
-                  {day.number}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    style={[
+                      styles.dayLabel,
+                      isActive && styles.dayLabelActive,
+                    ]}>
+                    {day.dayName}
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.dayNumber,
+                      isActive && styles.dayNumberActive,
+                    ]}>
+                    {day.dayNumber}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
-          <View style={styles.scrollIndicator}>
-            <View style={styles.scrollIndicatorBar} />
-          </View>
         </View>
 
-        {/* Meals Container */}
         <View style={styles.mealsContainer}>
           <View style={styles.mealHeader}>
-            <Text style={styles.sectionTitle}>Senin</Text>
-            <Text style={styles.dateText}>6 Oktober</Text>
+            <Text style={styles.sectionTitle}>
+              {currentSelectedDayObj.dayName}, {currentSelectedDayObj.dayNumber}{' '}
+              {currentSelectedDayObj.monthName}
+            </Text>
           </View>
 
-          {meals.map(meal => (
-            <View key={meal.id} style={styles.mealSection}>
-              {/* Meal Category Header */}
-              <View style={styles.mealCategoryHeader}>
-                <Text style={styles.mealEmoji}>{meal.emoji}</Text>
-                <View style={styles.mealCategoryInfo}>
-                  <Text style={styles.mealCategory}>{meal.category}</Text>
-                  <Text style={styles.mealTime}>{meal.time}</Text>
-                </View>
-                <TouchableOpacity>
-                  <Text style={styles.closeIcon}>✕</Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Meal Items */}
-              {meal.items.length > 0 ? (
-                meal.items.map((item, index) => (
-                  <Card key={index} style={styles.mealCard} padding={16}>
-                    <View style={styles.mealCardContent}>
-                      <View style={styles.mealIconContainer}>
-                        <Text style={styles.mealItemEmoji}>{item.emoji}</Text>
-                      </View>
-                      <View style={styles.mealInfo}>
-                        <Text style={styles.mealName}>{item.name}</Text>
-                        <View style={styles.durationContainer}>
-                          <Text style={styles.clockIcon}>🕐</Text>
-                          <Text style={styles.duration}>{item.duration}</Text>
-                        </View>
-                      </View>
-                      <MiniButtonYellow onPress={goToKumpulanResep} />
+          {loading ? (
+            <ActivityIndicator
+              size="large"
+              color="#FBBF24"
+              style={{marginTop: 50}}
+            />
+          ) : (
+            categories.map(cat => {
+              const currentMeal = dailyMeals ? dailyMeals[cat.id] : null;
+              return (
+                <View key={cat.id} style={styles.mealSection}>
+                  <View style={styles.mealCategoryHeader}>
+                    <Text style={styles.mealEmoji}>{cat.emoji}</Text>
+                    <View style={styles.mealCategoryInfo}>
+                      <Text style={styles.mealCategory}>{cat.label}</Text>
+                      <Text style={styles.mealTime}>{cat.time}</Text>
                     </View>
-                  </Card>
-                ))
-              ) : (
-                <TouchableOpacity onPress={goToKumpulanResep}>
-                  <Card style={styles.emptyCard} padding={40} center>
-                    <Text style={styles.emptyText}>
-                      Tambah Menu {meal.category}
-                    </Text>
-                  </Card>
-                </TouchableOpacity>
-              )}
-            </View>
-          ))}
+
+                    {currentMeal && (
+                      <TouchableOpacity
+                        style={styles.deleteButtonHeader}
+                        onPress={() => handleRemoveMeal(cat.id)}
+                        hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+                        <Text style={styles.deleteButtonText}>✕</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+
+                  {currentMeal ? (
+                    <Card style={styles.mealCard} padding={16}>
+                      <View style={styles.mealCardContent}>
+                        <View style={styles.mealIconContainer}>
+                          <Text style={styles.mealItemEmoji}>
+                            {currentMeal.emoji || '🍲'}
+                          </Text>
+                        </View>
+                        <View style={styles.mealInfo}>
+                          <Text style={styles.mealName}>
+                            {currentMeal.name}
+                          </Text>
+                          <View style={styles.durationContainer}>
+                            <Text style={styles.clockIcon}>🕐</Text>
+                            <Text style={styles.duration}>
+                              {currentMeal.duration}
+                            </Text>
+                          </View>
+                        </View>
+                        <MiniButtonYellow
+                          onPress={() => goToSelection(cat.id)}
+                          text="Ganti"
+                        />
+                      </View>
+                    </Card>
+                  ) : (
+                    <TouchableOpacity onPress={() => goToSelection(cat.id)}>
+                      <Card style={styles.emptyCard} padding={40} center>
+                        <Text style={styles.emptyText}>
+                          + Tambah Menu {cat.label}
+                        </Text>
+                      </Card>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              );
+            })
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -177,60 +254,24 @@ const Rencana = ({navigation}) => {
 
 export default Rencana;
 
-// 👇 Styles tetap sama seperti sebelumnya
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
+  container: {flex: 1, backgroundColor: '#F9FAFB'},
   header: {
     backgroundColor: '#FBBF24',
     paddingHorizontal: 20,
     paddingVertical: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
     justifyContent: 'center',
   },
-  backIcon: {
-    fontSize: 24,
-    color: '#FFFFFF',
-  },
-  headerTextContainer: {
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    opacity: 0.8,
-    marginTop: 2,
-  },
-  headerSpacer: {
-    width: 40,
-  },
-  content: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 100,
-  },
-  daySelectorContainer: {
-    backgroundColor: '#FBBF24',
-    paddingVertical: 16,
-  },
-  dayScrollContent: {
-    paddingHorizontal: 12,
-  },
+  headerTextContainer: {alignItems: 'center'},
+  headerTitle: {fontSize: 18, fontWeight: '600', color: '#FFFFFF'},
+  headerSubtitle: {fontSize: 12, color: '#FFFFFF', opacity: 0.8, marginTop: 2},
+
+  content: {flex: 1},
+  daySelectorContainer: {backgroundColor: '#FBBF24', paddingVertical: 16},
+  dayScrollContent: {paddingHorizontal: 12},
+
   dayButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     paddingHorizontal: 16,
@@ -240,57 +281,27 @@ const styles = StyleSheet.create({
     minWidth: 60,
     alignItems: 'center',
   },
-  dayButtonActive: {
-    backgroundColor: '#FFFFFF',
-  },
+  dayButtonActive: {backgroundColor: '#FFFFFF'},
+
   dayLabel: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: '500',
     marginBottom: 4,
   },
-  dayLabelActive: {
-    color: '#92400E',
-  },
-  dayNumber: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  dayNumberActive: {
-    color: '#92400E',
-  },
-  scrollIndicator: {
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  scrollIndicatorBar: {
-    width: 40,
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    borderRadius: 2,
-  },
-  mealsContainer: {
-    padding: 20,
-  },
+  dayLabelActive: {color: '#92400E'},
+  dayNumber: {fontSize: 16, fontWeight: '700', color: '#FFFFFF'},
+  dayNumberActive: {color: '#92400E'},
+
+  mealsContainer: {padding: 20, paddingBottom: 100},
   mealHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1F2937',
-  },
-  dateText: {
-    fontSize: 14,
-    color: '#9CA3AF',
-  },
-  mealSection: {
-    marginBottom: 24,
-  },
+  sectionTitle: {fontSize: 18, fontWeight: '600', color: '#1F2937'},
+  mealSection: {marginBottom: 24},
   mealCategoryHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -299,34 +310,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 12,
   },
-  mealEmoji: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  mealCategoryInfo: {
-    flex: 1,
-  },
-  mealCategory: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1F2937',
-  },
-  mealTime: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginTop: 2,
-  },
-  closeIcon: {
-    fontSize: 20,
-    color: '#9CA3AF',
-  },
-  mealCard: {
-    marginTop: 0,
-  },
-  mealCardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  mealEmoji: {fontSize: 24, marginRight: 12},
+  mealCategoryInfo: {flex: 1},
+  mealCategory: {fontSize: 14, fontWeight: '600', color: '#1F2937'},
+  mealTime: {fontSize: 12, color: '#6B7280', marginTop: 2},
+  mealCard: {marginTop: 0},
+  mealCardContent: {flexDirection: 'row', alignItems: 'center'},
   mealIconContainer: {
     width: 48,
     height: 48,
@@ -336,36 +325,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  mealItemEmoji: {
-    fontSize: 24,
-  },
-  mealInfo: {
-    flex: 1,
-  },
+  mealItemEmoji: {fontSize: 24},
+  mealInfo: {flex: 1},
   mealName: {
     fontSize: 14,
     fontWeight: '600',
     color: '#1F2937',
     marginBottom: 4,
   },
-  durationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  clockIcon: {
-    fontSize: 14,
-    marginRight: 4,
-  },
-  duration: {
-    fontSize: 12,
-    color: '#9CA3AF',
-  },
+  durationContainer: {flexDirection: 'row', alignItems: 'center'},
+  clockIcon: {fontSize: 14, marginRight: 4},
+  duration: {fontSize: 12, color: '#9CA3AF'},
   emptyCard: {
     marginTop: 0,
+    borderStyle: 'dashed',
+    borderWidth: 1.5,
+    borderColor: '#D1D5DB',
+    backgroundColor: 'transparent',
   },
   emptyText: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: '#6B7280',
     textAlign: 'center',
+    fontWeight: '500',
+  },
+
+  deleteButtonHeader: {
+    backgroundColor: '#FEE2E2',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 12,
+  },
+  deleteButtonText: {
+    color: '#EF4444',
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginTop: -2,
   },
 });

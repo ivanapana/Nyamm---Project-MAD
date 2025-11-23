@@ -8,6 +8,11 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
+import {showMessage} from 'react-native-flash-message';
+
+import {getAuth, createUserWithEmailAndPassword} from 'firebase/auth';
+import {getDatabase, ref, set} from 'firebase/database';
+
 import BackButton from '../../components/atoms/BackButtonSign';
 import Icon from '../../components/atoms/Icon';
 import ButtonYellow from '../../components/atoms/ButtonYellow';
@@ -17,8 +22,12 @@ import Card from '../../components/organisms/Card';
 const SignUpScreen = ({navigation}) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [loading, setLoading] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -29,19 +38,88 @@ const SignUpScreen = ({navigation}) => {
   };
 
   const handleSignUp = () => {
-    console.log('Create Account:', {
-      firstName,
-      lastName,
-      password,
-      confirmPassword,
-    });
-
-    if (navigation && navigation.navigate) {
-      navigation.navigate('SignIn');
+    if (password !== confirmPassword) {
+      showMessage({
+        message: 'Password dan Konfirmasi Password tidak sama',
+        type: 'danger',
+      });
+      return;
     }
+
+    if (password.length < 6) {
+      showMessage({
+        message: 'Password minimal 6 karakter',
+        type: 'danger',
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    const auth = getAuth();
+    const db = getDatabase();
+
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(userCredential => {
+        const user = userCredential.user;
+
+        const dataUser = {
+          uid: user.uid,
+          firstName: firstName,
+          lastName: lastName,
+          fullName: `${firstName} ${lastName}`,
+          email: email,
+          photo: '',
+        };
+
+        set(ref(db, 'users/' + user.uid), dataUser)
+          .then(() => {
+            setLoading(false);
+
+            showMessage({
+              message: 'Registrasi Berhasil',
+              description: 'Selamat datang di Nyamm!',
+              type: 'success',
+              icon: 'success',
+            });
+            navigation.navigate('SignIn');
+          })
+          .catch(error => {
+            setLoading(false);
+            console.log('Error Simpan DB:', error);
+            showMessage({
+              message: 'Gagal menyimpan data profil',
+              description: error.message,
+              type: 'danger',
+            });
+          });
+      })
+      .catch(error => {
+        setLoading(false);
+        const errorMessage = error.message;
+        console.log('Error Auth:', errorMessage);
+
+        let pesan = 'Terjadi kesalahan registrasi';
+        if (errorMessage.includes('email-already-in-use')) {
+          pesan = 'Email sudah terdaftar';
+        } else if (errorMessage.includes('invalid-email')) {
+          pesan = 'Format email salah';
+        }
+
+        showMessage({
+          message: pesan,
+          type: 'danger',
+        });
+      });
   };
 
-  const isDisabled = !firstName || !lastName || !password || !confirmPassword;
+  const isDisabled =
+    loading ||
+    !firstName ||
+    !lastName ||
+    !email ||
+    !password ||
+    !confirmPassword;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -63,31 +141,37 @@ const SignUpScreen = ({navigation}) => {
 
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>
-            Join nyamm! and start cooking smarter
+            Gabung dengan Nyamm! dan Mulailah Memasak dengan Lebih Pintar
           </Text>
 
           <View style={styles.form}>
             <View style={styles.nameRow}>
               <View style={styles.nameFieldWrapper}>
                 <TextField
-                  label="First Name"
-                  placeholder="Marco"
+                  label="Nama Depan"
+                  placeholder="Nama Depan"
                   value={firstName}
                   onChangeText={setFirstName}
-                  keyboardType="default"
                 />
               </View>
 
               <View style={styles.nameFieldWrapper}>
                 <TextField
-                  label="Last Name"
-                  placeholder="Pieter"
+                  label="Nama Belakang"
+                  placeholder="Nama Belakang"
                   value={lastName}
                   onChangeText={setLastName}
-                  keyboardType="default"
                 />
               </View>
             </View>
+
+            <TextField
+              label="Alamat Email"
+              placeholder="nama@email.com"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+            />
 
             <TextField
               label="Password"
@@ -100,20 +184,13 @@ const SignUpScreen = ({navigation}) => {
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => setShowPassword(!showPassword)}>
-                  <Text
-                    style={{
-                      color: '#9AA0A6',
-                      fontSize: 18,
-                      fontWeight: '700',
-                    }}>
-                    O
-                  </Text>
+                  <Text style={styles.eyeIcon}>{showPassword ? 'X' : 'O'}</Text>
                 </TouchableOpacity>
               }
             />
             <TextField
-              label="Confirm Password"
-              placeholder="Confirm Password"
+              label="Konfirmasi Password"
+              placeholder="Konfirmasi Password"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry={!showConfirmPassword}
@@ -122,13 +199,8 @@ const SignUpScreen = ({navigation}) => {
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                  <Text
-                    style={{
-                      color: '#9AA0A6',
-                      fontSize: 18,
-                      fontWeight: '700',
-                    }}>
-                    O
+                  <Text style={styles.eyeIcon}>
+                    {showConfirmPassword ? 'X' : 'O'}
                   </Text>
                 </TouchableOpacity>
               }
@@ -136,7 +208,7 @@ const SignUpScreen = ({navigation}) => {
 
             <View style={styles.buttonWrapper}>
               <ButtonYellow
-                label="Create Account"
+                label={loading ? 'Loading...' : 'Buat Akun'}
                 onPress={handleSignUp}
                 disabled={isDisabled}
               />
@@ -144,14 +216,10 @@ const SignUpScreen = ({navigation}) => {
 
             <View style={styles.footerTextContainer}>
               <Text style={styles.footerText}>
-                Already have an account?{' '}
+                Sudah Punya Akun?{' '}
                 <Text
                   style={styles.footerLink}
-                  onPress={() =>
-                    navigation && navigation.navigate
-                      ? navigation.navigate('SignIn')
-                      : null
-                  }>
+                  onPress={() => navigation.navigate('SignIn')}>
                   Sign In
                 </Text>
               </Text>
@@ -245,6 +313,11 @@ const styles = StyleSheet.create({
   },
   footerLink: {
     color: '#F59E0B',
+    fontWeight: '700',
+  },
+  eyeIcon: {
+    color: '#9AA0A6',
+    fontSize: 18,
     fontWeight: '700',
   },
 });
