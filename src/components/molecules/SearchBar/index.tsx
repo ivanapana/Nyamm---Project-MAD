@@ -1,9 +1,13 @@
-// src/components/molecules/SearchBar.tsx
 import React from 'react';
 import {View, TextInput, StyleSheet} from 'react-native';
 import Icon from '../../atoms/Icon';
 
-const SearchBar = ({placeholder = 'Cari sesuatu...'}) => {
+const SearchBar = ({
+  placeholder = 'Cari sesuatu...',
+  value,
+  onChangeText,
+  onSubmit,
+}) => {
   return (
     <View style={styles.container}>
       <Icon name="search" size={20} color="#9CA3AF" />
@@ -11,6 +15,10 @@ const SearchBar = ({placeholder = 'Cari sesuatu...'}) => {
         placeholder={placeholder}
         style={styles.input}
         placeholderTextColor="#9CA3AF"
+        value={value}
+        onChangeText={onChangeText}
+        onSubmitEditing={onSubmit}
+        returnKeyType="search"
       />
     </View>
   );
@@ -38,5 +46,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: '#1f2937',
+    marginLeft: 8,
   },
 });
