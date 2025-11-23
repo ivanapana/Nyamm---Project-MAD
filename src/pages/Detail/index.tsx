@@ -1,6 +1,9 @@
+// src/pages/Detail/index.js
 import React, {useState} from 'react';
 import {View, ScrollView, StyleSheet, Alert} from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
+import {getDatabase, ref, push} from 'firebase/database';
+import {getAuth} from 'firebase/auth';
 import BackButton from '../../components/atoms/BackButton';
 import ButtonYellow from '../../components/atoms/ButtonYellow';
 import RecipeHeader from '../../components/molecules/RecipeHeader';
@@ -11,35 +14,16 @@ import CookingStep from '../../components/molecules/CookingStep';
 
 const DEFAULT_RECIPE = {
   name: 'Nasi Goreng Spesial',
-  description: 'Nasi goreng klasik Indonesia dengan bumbu spesial...',
+  description: 'Nasi goreng klasik Indonesia...',
   time: '20 min',
   servings: '2 porsi',
-  ingredients: [
-    {id: 0, name: 'Nasi putih dingin', qty: '2', unit: 'piring'},
-    {id: 1, name: 'Telur ayam', qty: '1', unit: 'butir'},
-    {id: 2, name: 'Bawang putih', qty: '3', unit: 'siung'},
-    {id: 3, name: 'Kecap manis', qty: '2', unit: 'sdm'},
-    {id: 4, name: 'Minyak goreng', qty: '1', unit: 'sdm'},
-  ],
-  steps: [
-    {
-      id: 0,
-      text: 'Haluskan bawang putih, bawang merah, dan cabai rawit. Sisihkan.',
-    },
-    {
-      id: 1,
-      text: 'Panaskan minyak dalam wajan, tumis bumbu halus hingga harum.',
-    },
-    {id: 2, text: 'Masukkan telur, orak-arik hingga setengah matang.'},
-    {id: 3, text: 'Tambahkan nasi putih, aduk rata.'},
-    {id: 4, text: 'Koreksi rasa, angkat dan sajikan.'},
-  ],
+  ingredients: [],
+  steps: [],
 };
 
 export default function DetailPage() {
   const route = useRoute();
   const navigation = useNavigation();
-
   const recipeData = route.params?.recipe || DEFAULT_RECIPE;
 
   const {
@@ -53,17 +37,54 @@ export default function DetailPage() {
 
   const [activeTab, setActiveTab] = useState('bahan');
   const [completedSteps, setCompletedSteps] = useState([]);
+
+  const addRecipeToShoppingList = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      Alert.alert('Error', 'Anda harus login terlebih dahulu');
+      return;
+    }
+
+    const db = getDatabase();
+    const shoppingListRef = ref(db, `shopping_list/${user.uid}`);
+
+    try {
+      const promises = ingredients.map(ing => {
+        return push(shoppingListRef, {
+          name: ing.name,
+          qty: ing.qty || '',
+          unit: ing.unit || '',
+          source: name,
+          isChecked: false,
+          createdAt: Date.now(),
+        });
+      });
+
+      await Promise.all(promises);
+
+      Alert.alert(
+        'Sukses!',
+        `${ingredients.length} bahan telah ditambahkan ke Daftar Belanja.`,
+        [
+          {
+            text: 'Lihat Daftar Belanja',
+            onPress: () => navigation.navigate('MainApp', {screen: 'Belanja'}),
+          },
+          {text: 'Oke', style: 'cancel'},
+        ],
+      );
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Gagal', 'Terjadi kesalahan saat menyimpan data.');
+    }
+  };
+
   const toggleStep = id => {
     setCompletedSteps(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
     );
-  };
-  const addRecipeToShoppingList = () => {
-    Alert.alert(
-      'Berhasil!',
-      'Bahan resep telah ditambahkan ke daftar belanja.',
-    );
-    navigation.navigate('Belanja');
   };
 
   const goBack = () => {
@@ -72,7 +93,6 @@ export default function DetailPage() {
 
   return (
     <View style={styles.container}>
-      {/* --- HEADER --- */}
       <View style={styles.header}>
         <BackButton onPress={goBack} size={24} color="#000" bgColor="#FFC727" />
         <View style={styles.headerContent}>
@@ -81,7 +101,6 @@ export default function DetailPage() {
         </View>
       </View>
 
-      {/* --- CONTENT --- */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <TabSelector activeTab={activeTab} onTabChange={setActiveTab} />
 

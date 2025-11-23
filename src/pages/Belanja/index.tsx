@@ -1,5 +1,6 @@
-//src/pages/Belanja/index.tsx
-import React, {useState} from 'react';
+// src/pages/Belanja/index.tsx
+
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -8,40 +9,101 @@ import {
   StatusBar,
   TouchableOpacity,
   Text,
+  Alert,
 } from 'react-native';
+
+// 1. Import Firebase
+import {getDatabase, ref, onValue, update, remove} from 'firebase/database';
+import {getAuth} from 'firebase/auth';
+
 import {Text as TextAtom} from '../../components/atoms';
 import ProgressBar from '../../components/atoms/ProgressBar';
 import ShoppingCard from '../../components/molecules/ShoppingCard';
 
-const SHOPPING_ITEMS = [
-  {id: 's1', name: 'Wortel', amount: '500 gram', from: 'Sop Iga Sapi'},
-  {id: 's2', name: 'Kentang', amount: '3 buah', from: 'Sop Iga Sapi'},
-  {
-    id: 's3',
-    name: 'Daun bawang',
-    amount: '4 batang',
-    from: 'Nasi Goreng, Mie Ayam',
-  },
-  {id: 's4', name: 'Tomat', amount: '5 buah', from: 'Gado-gado'},
-  {id: 's5', name: 'Iga sapi', amount: '500 gram', from: 'Sop Iga Sapi'},
-  {id: 's6', name: 'Ayam fillet', amount: '300 gram', from: 'Ayam Geprek'},
-  {id: 's7', name: 'Telur ayam', amount: '1 kg', from: 'Nasi Goreng, Pancake'},
-];
-
 export default function Belanja() {
-  const [checkedItems, setCheckedItems] = useState([]);
+  // State untuk menampung data dari Firebase
+  const [shoppingItems, setShoppingItems] = useState([]);
+  const [checkedItems, setCheckedItems] = useState([]); // Array berisi ID yang dicentang
 
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  // 2. Ambil Data Realtime
+  useEffect(() => {
+    if (!user) return;
+
+    const db = getDatabase();
+    const shoppingRef = ref(db, `shopping_list/${user.uid}`);
+
+    // Listener
+    onValue(shoppingRef, snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        // Mapping Object Firebase ke Array UI
+        const itemsArray = Object.keys(data).map(key => {
+          const itemData = data[key];
+          return {
+            id: key,
+            name: itemData.name,
+            // Gabungkan qty dan unit jadi 'amount'
+            amount: `${itemData.qty || ''} ${itemData.unit || ''}`.trim(),
+            from: itemData.source || 'Manual',
+            isChecked: itemData.isChecked || false, // Status checkbox
+          };
+        });
+
+        setShoppingItems(itemsArray);
+
+        // Sinkronisasi state checkedItems lokal dengan database
+        const checkedIds = itemsArray.filter(i => i.isChecked).map(i => i.id);
+        setCheckedItems(checkedIds);
+      } else {
+        setShoppingItems([]);
+        setCheckedItems([]);
+      }
+    });
+  }, [user]);
+
+  // 3. Update Status Checklist di Firebase
   const toggleItem = id => {
-    setCheckedItems(prev =>
-      prev.includes(id) ? prev.filter(itemId => itemId !== id) : [...prev, id],
+    const db = getDatabase();
+
+    // Cari status item sekarang
+    const currentItem = shoppingItems.find(i => i.id === id);
+    const newStatus = !currentItem.isChecked;
+
+    // Update di Firebase (otomatis UI akan re-render karena listener onValue)
+    update(ref(db, `shopping_list/${user.uid}/${id}`), {
+      isChecked: newStatus,
+    });
+  };
+
+  // 4. Handle Pindah ke Kulkas (Hapus dari Belanja)
+  const handleMoveToKulkas = () => {
+    Alert.alert(
+      'Pindahkan ke Kulkas',
+      `Apakah Anda yakin sudah membeli ${checkedItems.length} item ini? Item akan dihapus dari daftar belanja.`,
+      [
+        {text: 'Batal', style: 'cancel'},
+        {
+          text: 'Ya, Pindahkan',
+          onPress: async () => {
+            const db = getDatabase();
+            // Hapus item yang dicentang satu per satu
+            const promises = checkedItems.map(id => {
+              return remove(ref(db, `shopping_list/${user.uid}/${id}`));
+            });
+
+            await Promise.all(promises);
+            // Alert atau Toast sukses
+            // (Opsional: Disini Anda bisa simpan ke node 'kulkas'/'pantry' di masa depan)
+          },
+        },
+      ],
     );
   };
 
-  const handleMoveToKulkas = () => {
-    alert(`Memindahkan ${checkedItems.length} item ke Kulkas!`);
-  };
-
-  const totalItems = SHOPPING_ITEMS.length;
+  const totalItems = shoppingItems.length;
   const checkedCount = checkedItems.length;
   const progressPercentage =
     totalItems > 0 ? Math.round((checkedCount / totalItems) * 100) : 0;
@@ -70,15 +132,29 @@ export default function Belanja() {
               Total {totalItems} item
             </TextAtom>
           </View>
-          {SHOPPING_ITEMS.map(item => (
-            <ShoppingCard
-              key={item.id}
-              item={item}
-              checked={checkedItems.includes(item.id)}
-              onToggle={toggleItem}
-            />
-          ))}
+
+          {/* Render List dari State Firebase */}
+          {shoppingItems.length > 0 ? (
+            shoppingItems.map(item => (
+              <ShoppingCard
+                key={item.id}
+                item={item}
+                checked={checkedItems.includes(item.id)}
+                onToggle={() => toggleItem(item.id)}
+              />
+            ))
+          ) : (
+            <View style={{padding: 20, alignItems: 'center'}}>
+              <TextAtom style={{color: '#9CA3AF'}}>
+                Daftar belanja masih kosong.
+              </TextAtom>
+              <TextAtom style={{color: '#9CA3AF', fontSize: 12}}>
+                Yuk cari resep dulu!
+              </TextAtom>
+            </View>
+          )}
         </View>
+
         {checkedCount > 0 && (
           <TouchableOpacity
             style={styles.actionButton}
